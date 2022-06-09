@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "WinFormsDirect3D11Sample": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}
