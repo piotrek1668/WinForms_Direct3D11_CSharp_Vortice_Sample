@@ -2,7 +2,7 @@ namespace WinFormsDirect3D11Sample
 {
     public partial class Form1 : Form
     {
-        private Control control = new Control("D311 Control", 10, 40, 750, 600);
+        private Control control = new Control("D311 Control", 10, 40, 600, 500);
         private Label label;
         private Label labelFeatureLevel;
         private Direct3D11 direct3D;
@@ -21,14 +21,14 @@ namespace WinFormsDirect3D11Sample
 
             label = new Label();
             label.Text = "Direct3D11 Mode";
-            label.Size = new Size(200, 24);
-            label.Location = new Point(320, 10);
+            label.Size = new Size(150, 15);
+            label.Location = new Point(button.Left + button.Size.Width + 10, 15);
             this.Controls.Add(label);
 
             labelFeatureLevel = new Label();
             labelFeatureLevel.Text = "Highest supported feature level: NONE";
-            labelFeatureLevel.Size = new Size(400, 24);
-            labelFeatureLevel.Location = new Point(label.Left + label.Width + 10, 10);
+            labelFeatureLevel.Size = new Size(400, 15);
+            labelFeatureLevel.Location = new Point(label.Left + label.Width + 10, 15);
             this.Controls.Add(labelFeatureLevel);
 
             this.Controls.Add(control);
