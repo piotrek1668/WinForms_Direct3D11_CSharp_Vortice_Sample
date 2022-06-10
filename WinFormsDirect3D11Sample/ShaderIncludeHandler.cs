@@ -1,9 +1,6 @@
 ﻿// Copyright (c) Amer Koleci and contributors.
 // Distributed under the MIT license. See the LICENSE file in the project root for more information.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Runtime.InteropServices;
 using SharpGen.Runtime;
 using Vortice.Dxc;
@@ -20,17 +17,7 @@ namespace WinFormsDirect3D11Sample
             _includeDirectories = includeDirectories;
         }
 
-        //protected override void Dispose(bool disposing)
-        //{
-        //    foreach (var pinnedObject in _sourceFiles.Values)
-        //        pinnedObject?.Dispose();
-
-        //    _sourceFiles.Clear();
-
-        //    base.Dispose(disposing);
-        //}
-
-        public Result LoadSource(string fileName, out IDxcBlob includeSource)
+        public Result LoadSource(string fileName, out IDxcBlob? includeSource)
         {
             if (fileName.StartsWith("./"))
                 fileName = fileName.Substring(2);
@@ -40,7 +27,6 @@ namespace WinFormsDirect3D11Sample
             if (string.IsNullOrEmpty(includeFile))
             {
                 includeSource = default;
-
                 return Result.Fail;
             }
 
@@ -72,10 +58,8 @@ namespace WinFormsDirect3D11Sample
             return null;
         }
 
-
         private class SourceCodeBlob : IDisposable
         {
-            private byte[] _data;
             private GCHandle _dataPointer;
             private IDxcBlobEncoding? _blob;
 
@@ -83,8 +67,6 @@ namespace WinFormsDirect3D11Sample
 
             public SourceCodeBlob(byte[] data)
             {
-                _data = data;
-
                 _dataPointer = GCHandle.Alloc(data, GCHandleType.Pinned);
 
                 _blob = DxcCompiler.Utils.CreateBlob(_dataPointer.AddrOfPinnedObject(), data.Length, Dxc.DXC_CP_UTF8);

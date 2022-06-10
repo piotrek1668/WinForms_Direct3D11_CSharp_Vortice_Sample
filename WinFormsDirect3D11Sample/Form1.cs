@@ -2,36 +2,40 @@ namespace WinFormsDirect3D11Sample
 {
     public partial class Form1 : Form
     {
-        private Control control = new Control("Direct3D11 Control", 10, 40, 600, 500);
-        private Control control2D = new Control("Direct2D Control");
-        private Label label;
-        private Label labelFeatureLevel;
-        private Direct3D11 direct3D;
-        private System.Windows.Forms.Timer timer;
+        private readonly Control control = new("Direct3D11 Control", 10, 50, 600, 500);
+        private readonly Control control2D = new("Direct2D Control");
+        private readonly Label label;
+        private readonly Label labelFeatureLevel;
+        private readonly Direct3D11 direct3D;
+        private readonly System.Windows.Forms.Timer timer;
         private bool rendering = true;
 
         public Form1()
         {
             InitializeComponent();
 
-            Button button = new Button();
-            button.Text = "Toggle rendering";
-            button.Size = new Size(300, 24);
-            button.Location = new Point(10, 10);
+            Button button = new()
+            {
+                Text = "Toggle rendering",
+                Size = new Size(300, 30),
+                Location = new Point(10, 10)
+            };
+
             button.Click += this.Button_Click;
-            this.Controls.Add(button);
+            
+            label = new Label
+            {
+                Text = "Direct3D11 Mode",
+                Size = new Size(150, 30),
+                Location = new Point(button.Left + button.Size.Width + 10, 15)
+            };
 
-            label = new Label();
-            label.Text = "Direct3D11 Mode";
-            label.Size = new Size(150, 15);
-            label.Location = new Point(button.Left + button.Size.Width + 10, 15);
-            this.Controls.Add(label);
-
-            labelFeatureLevel = new Label();
-            labelFeatureLevel.Text = "Highest supported feature level: NONE";
-            labelFeatureLevel.Size = new Size(400, 15);
-            labelFeatureLevel.Location = new Point(label.Left + label.Width + 10, 15);
-            this.Controls.Add(labelFeatureLevel);
+            labelFeatureLevel = new Label
+            {
+                Text = "Highest supported feature level: NONE",
+                Size = new Size(400, 30),
+                Location = new Point(label.Left + label.Width + 10, 15)
+            };
 
             control2D.Location = new Point(control.Width + control.Left + 10, control.Top);
             control2D.Size = new Size(control.Width, control.Height);
@@ -39,6 +43,9 @@ namespace WinFormsDirect3D11Sample
 
             control.BackColor = Color.Gray;
 
+            this.Controls.Add(button);
+            this.Controls.Add(label);
+            this.Controls.Add(labelFeatureLevel);
             this.Controls.Add(control);
             this.Controls.Add(control2D);
 

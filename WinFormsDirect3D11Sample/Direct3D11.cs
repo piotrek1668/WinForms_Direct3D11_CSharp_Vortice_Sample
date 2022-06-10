@@ -16,27 +16,29 @@ using BitmapInterpolationMode = Vortice.WIC.BitmapInterpolationMode;
 using Color = Vortice.Mathematics.Color;
 using FeatureLevel = Vortice.Direct3D.FeatureLevel;
 
+#nullable disable
+
 namespace WinFormsDirect3D11Sample
 {
     internal unsafe class Direct3D11 : IDisposable
     {
-        private Control control;
-        private Control control2D;
-        private Form1 form;
-        private ID3D11Device1? device; // virtual representation of the GPU and its resources
-        private ID3D11DeviceContext1? deviceContext; // represents the graphics processing for the pipeline
+        private readonly Control control;
+        private readonly Control control2D;
+        private readonly Form1 form;
+        private ID3D11Device1 device; // virtual representation of the GPU and its resources
+        private ID3D11DeviceContext1 deviceContext; // represents the graphics processing for the pipeline
         private IDXGISwapChain1 swapChain;
         private IDXGISwapChain1 swapChain2;
-        private ID3D11Texture2D? backBufferTexture;
-        private ID3D11Texture2D? backBufferTexture2;
-        private ID3D11RenderTargetView? renderTargetView;
-        private ID3D11RenderTargetView? renderTargetView2;
-        public ID3D11Texture2D? depthStencilTexture;
-        public ID3D11Texture2D? depthStencilTexture2;
-        public ID3D11DepthStencilView? depthStencilView;
-        public ID3D11DepthStencilView? depthStencilView2;
+        private ID3D11Texture2D backBufferTexture;
+        private ID3D11Texture2D backBufferTexture2;
+        private ID3D11RenderTargetView renderTargetView;
+        private ID3D11RenderTargetView renderTargetView2;
+        public ID3D11Texture2D depthStencilTexture;
+        public ID3D11Texture2D depthStencilTexture2;
+        public ID3D11DepthStencilView depthStencilView;
+        public ID3D11DepthStencilView depthStencilView2;
         private FeatureLevel highestSupportedFeatureLevel;
-        private bool debug = false;
+        private readonly bool debug = false;
 
         private ID3D11VertexShader vertexShaderPositionColor;
         private ID3D11VertexShader vertexShaderPositionTexture;
@@ -56,16 +58,15 @@ namespace WinFormsDirect3D11Sample
 
         private ID2D1RenderTarget renderTarget2D;
         private IDWriteTextFormat textFormat;
-        private IDWriteTextFormat textFormat2;
         private readonly string text = "{%VARIABLE%}";
 
         private float value = 0.01f;
 
-        private Color4 clearColor = new Color4(0.0f, 0.0f, 0.0f, 1.0f);
-        private Color4 colorYellow = new Color4(1.0f, 1.0f, 0.0f, 1.0f);
-        private Color4 colorRed = new Color4(1.0f, 0.0f, 0.0f, 1.0f);
-        private Color4 colorGreen = new Color4(0.0f, 1.0f, 0.0f, 1.0f);
-        private Color4 colorWhite = new Color4(1.0f, 1.0f, 1.0f, 0.75f); // <- alpha does not work!!
+        private readonly Color4 clearColor = new (0.0f, 0.0f, 0.0f, 1.0f);
+        private readonly Color4 colorYellow = new (1.0f, 1.0f, 0.0f, 1.0f);
+        private readonly Color4 colorRed = new (1.0f, 0.0f, 0.0f, 1.0f);
+        private readonly Color4 colorGreen = new (0.0f, 1.0f, 0.0f, 1.0f);
+        private readonly Color4 colorWhite = new (1.0f, 1.0f, 1.0f, 0.75f); // <- alpha does not work!!
         private ID3D11Texture2D _texture;
 
         private ID3D11Buffer signalBuffer;
@@ -79,7 +80,6 @@ namespace WinFormsDirect3D11Sample
         private ID3D11Debug debugInterface;
         private ID3D11ShaderResourceView _textureSRV;
         private ID3D11SamplerState _textureSampler;
-        private bool draw3D = false;
 
         // list of featureLevels this app can support
         private static readonly FeatureLevel[] featureLevels = new[]
@@ -126,7 +126,7 @@ namespace WinFormsDirect3D11Sample
                 deviceCreationFlags |= DeviceCreationFlags.Debug;
             }
 
-            using IDXGIAdapter1? adapter = GetHardwareAdapter();
+            using IDXGIAdapter1 adapter = GetHardwareAdapter();
             if (adapter == null) return;
 
             if (D3D11.D3D11CreateDevice(adapter, DriverType.Unknown, deviceCreationFlags, featureLevels,
@@ -174,10 +174,7 @@ namespace WinFormsDirect3D11Sample
                 AlphaMode = AlphaMode.Ignore
             };
 
-            SwapChainFullscreenDescription fullscreenDescription = new SwapChainFullscreenDescription
-            {
-                Windowed = true
-            };
+            SwapChainFullscreenDescription fullscreenDescription = new() { Windowed = true };
 
             swapChain = factory.CreateSwapChainForHwnd(device, control.Handle, swapChainDescription, fullscreenDescription);
             swapChain2 = factory.CreateSwapChainForHwnd(device, control2D.Handle, swapChainDescription2, fullscreenDescription);
@@ -194,14 +191,14 @@ namespace WinFormsDirect3D11Sample
             textFormat.TextAlignment = TextAlignment.Center;
             textFormat.ParagraphAlignment = ParagraphAlignment.Center;
 
-            textFormat2 = writeFactory.CreateTextFormat("Arial", 20.0f);
-            textFormat2.TextAlignment = TextAlignment.Center;
-            textFormat2.ParagraphAlignment = ParagraphAlignment.Center;
-            var renderTargetProperties = new RenderTargetProperties();
-            renderTargetProperties.Type = RenderTargetType.Default;
-            renderTargetProperties.DpiX = 96;
-            renderTargetProperties.DpiY = 96;
-            renderTargetProperties.PixelFormat = Vortice.DCommon.PixelFormat.Premultiplied;
+            RenderTargetProperties renderTargetProperties = new()
+            {
+                Type = RenderTargetType.Default,
+                DpiX = 96,
+                DpiY = 96,
+                PixelFormat = Vortice.DCommon.PixelFormat.Premultiplied
+            };
+
             var backBuffer = swapChain2.GetBuffer<IDXGISurface>(0);
             renderTarget2D = direct2DFactory.CreateDxgiSurfaceRenderTarget(backBuffer, renderTargetProperties);
 
@@ -664,14 +661,14 @@ namespace WinFormsDirect3D11Sample
             return blob.AsSpan();
         }
 
-        private IDXGIAdapter1? GetHardwareAdapter()
+        private static IDXGIAdapter1 GetHardwareAdapter()
         {
             /*
              * Try to get a high performance hardware adapter 
              * return null if no hardware adapter has been found
              */
 
-            IDXGIAdapter1? adapter = null;
+            IDXGIAdapter1 adapter = null;
             DXGI.CreateDXGIFactory1<IDXGIFactory6>(out var factory6);
             if (factory6 != null)
             {
