@@ -2,18 +2,20 @@ namespace WinFormsDirect3D11Sample
 {
     public partial class Form1 : Form
     {
-        private Control control = new Control("D311 Control", 10, 40, 600, 500);
+        private Control control = new Control("Direct3D11 Control", 10, 40, 600, 500);
+        private Control control2D = new Control("Direct2D Control");
         private Label label;
         private Label labelFeatureLevel;
         private Direct3D11 direct3D;
         private System.Windows.Forms.Timer timer;
+        private bool rendering = true;
 
         public Form1()
         {
             InitializeComponent();
 
             Button button = new Button();
-            button.Text = "Stop rendering";
+            button.Text = "Toggle rendering";
             button.Size = new Size(300, 24);
             button.Location = new Point(10, 10);
             button.Click += this.Button_Click;
@@ -31,21 +33,41 @@ namespace WinFormsDirect3D11Sample
             labelFeatureLevel.Location = new Point(label.Left + label.Width + 10, 15);
             this.Controls.Add(labelFeatureLevel);
 
-            this.Controls.Add(control);
+            control2D.Location = new Point(control.Width + control.Left + 10, control.Top);
+            control2D.Size = new Size(control.Width, control.Height);
+            control2D.BackColor = Color.Gray;
 
-            direct3D = new Direct3D11(this, control);
+            control.BackColor = Color.Gray;
+
+            this.Controls.Add(control);
+            this.Controls.Add(control2D);
+
+            direct3D = new Direct3D11(this, control, control2D);
             direct3D.OnInit();
 
             timer = new System.Windows.Forms.Timer();
             timer.Tick += Timer_Tick;
-            timer.Interval = 50;
+            timer.Interval = 20;
             timer.Start();
+        }
+
+        ~Form1()
+        {
+            direct3D?.Dispose();
         }
 
         private void Button_Click(object? sender, EventArgs e)
         {
-            timer?.Stop();
-            direct3D?.Dispose();
+            if (rendering)
+            {
+                rendering = false;
+                timer?.Stop();
+            }
+            else
+            {
+                rendering = true;
+                timer?.Start();
+            }
         }
 
         private void Timer_Tick(object? sender, EventArgs e)
