@@ -22,9 +22,9 @@ namespace WinFormsDirect3D11Sample
 {
     internal unsafe class Direct3D11 : IDisposable
     {
-        private readonly Control control;
-        private readonly Control control2D;
-        private readonly Form1 form;
+        private readonly Control leftControl;
+        private readonly Control rightControl;
+        private readonly MainWindow mainWindow;
         private ID3D11Device1 device; // virtual representation of the GPU and its resources
         private ID3D11DeviceContext1 deviceContext; // represents the graphics processing for the pipeline
         private IDXGISwapChain1 swapChain;
@@ -93,11 +93,11 @@ namespace WinFormsDirect3D11Sample
             FeatureLevel.Level_9_1,
         };
 
-        public Direct3D11(Form1 form, Control control, Control control2D)
+        public Direct3D11(MainWindow form, Control control, Control control2D)
         {
-            this.form = form;
-            this.control = control;
-            this.control2D = control2D;
+            this.mainWindow = form;
+            this.leftControl = control;
+            this.rightControl = control2D;
 #if DEBUG
             debug = true;
 #endif
@@ -140,7 +140,7 @@ namespace WinFormsDirect3D11Sample
             }
 
             highestSupportedFeatureLevel = featureLevel;
-            this.form.UpdateLabels(adapter.Description1.Description, highestSupportedFeatureLevel.ToString());
+            this.mainWindow.UpdateLabels(adapter.Description1.Description, highestSupportedFeatureLevel.ToString());
             device = tempDevice.QueryInterface<ID3D11Device1>();
             deviceContext = tempContext.QueryInterface<ID3D11DeviceContext1>();
             tempContext.Dispose();
@@ -150,8 +150,8 @@ namespace WinFormsDirect3D11Sample
 
             SwapChainDescription1 swapChainDescription = new()
             {
-                Width = control.ClientSize.Width,
-                Height = control.ClientSize.Height,
+                Width = leftControl.ClientSize.Width,
+                Height = leftControl.ClientSize.Height,
                 Format = Format.R8G8B8A8_UNorm,
                 BufferCount = 2,
                 BufferUsage = Usage.RenderTargetOutput,
@@ -163,8 +163,8 @@ namespace WinFormsDirect3D11Sample
 
             SwapChainDescription1 swapChainDescription2 = new()
             {
-                Width = control2D.ClientSize.Width,
-                Height = control2D.ClientSize.Height,
+                Width = rightControl.ClientSize.Width,
+                Height = rightControl.ClientSize.Height,
                 Format = Format.R8G8B8A8_UNorm,
                 BufferCount = 2,
                 BufferUsage = Usage.RenderTargetOutput,
@@ -176,10 +176,10 @@ namespace WinFormsDirect3D11Sample
 
             SwapChainFullscreenDescription fullscreenDescription = new() { Windowed = true };
 
-            swapChain = factory.CreateSwapChainForHwnd(device, control.Handle, swapChainDescription, fullscreenDescription);
-            swapChain2 = factory.CreateSwapChainForHwnd(device, control2D.Handle, swapChainDescription2, fullscreenDescription);
-            factory.MakeWindowAssociation(control.Handle, WindowAssociationFlags.IgnoreAltEnter);
-            factory.MakeWindowAssociation(control2D.Handle, WindowAssociationFlags.IgnoreAltEnter);
+            swapChain = factory.CreateSwapChainForHwnd(device, leftControl.Handle, swapChainDescription, fullscreenDescription);
+            swapChain2 = factory.CreateSwapChainForHwnd(device, rightControl.Handle, swapChainDescription2, fullscreenDescription);
+            factory.MakeWindowAssociation(leftControl.Handle, WindowAssociationFlags.IgnoreAltEnter);
+            factory.MakeWindowAssociation(rightControl.Handle, WindowAssociationFlags.IgnoreAltEnter);
 
             backBufferTexture = swapChain.GetBuffer<ID3D11Texture2D>(0);
             backBufferTexture2 = swapChain2.GetBuffer<ID3D11Texture2D>(0);
@@ -202,10 +202,10 @@ namespace WinFormsDirect3D11Sample
             var backBuffer = swapChain2.GetBuffer<IDXGISurface>(0);
             renderTarget2D = direct2DFactory.CreateDxgiSurfaceRenderTarget(backBuffer, renderTargetProperties);
 
-            depthStencilTexture = device.CreateTexture2D(Format.D32_Float, control.Width, control.Height, 1, 1, null, BindFlags.DepthStencil);
+            depthStencilTexture = device.CreateTexture2D(Format.D32_Float, leftControl.Width, leftControl.Height, 1, 1, null, BindFlags.DepthStencil);
             depthStencilView = device.CreateDepthStencilView(depthStencilTexture!, new DepthStencilViewDescription(depthStencilTexture, DepthStencilViewDimension.Texture2D));
 
-            depthStencilTexture2 = device.CreateTexture2D(Format.D32_Float, control2D.Width, control2D.Height, 1, 1, null, BindFlags.DepthStencil);
+            depthStencilTexture2 = device.CreateTexture2D(Format.D32_Float, rightControl.Width, rightControl.Height, 1, 1, null, BindFlags.DepthStencil);
             depthStencilView2 = device.CreateDepthStencilView(depthStencilTexture2!, new DepthStencilViewDescription(depthStencilTexture, DepthStencilViewDimension.Texture2D));
 
             signalVerticesBufferSize = 10;
@@ -282,16 +282,16 @@ namespace WinFormsDirect3D11Sample
 
             // set render target, viewport and scrissor rectangle
             deviceContext.OMSetRenderTargets(renderTargetView2, depthStencilView2);
-            deviceContext.RSSetViewport(new Viewport(control2D.Width, control2D.Height));
-            deviceContext.RSSetScissorRect(control2D.Width, control2D.Height);
+            deviceContext.RSSetViewport(new Viewport(rightControl.Width, rightControl.Height));
+            deviceContext.RSSetScissorRect(rightControl.Width, rightControl.Height);
 
             // draw direct2d
             renderTarget2D.BeginDraw();
             renderTarget2D.Transform = Matrix3x2.Identity; // TODO: Rotation/Translation/etc. possible
             renderTarget2D.Clear(clearColor);
             var blackBrush = renderTarget2D.CreateSolidColorBrush(new Color4(1.0f, 1.0f, 1.0f, 1.0f));
-            var height = control2D.Height / 5;
-            var layoutRect = new Rect(0, height * 4, control2D.Width, height);
+            var height = rightControl.Height / 5;
+            var layoutRect = new Rect(0, height * 4, rightControl.Width, height);
             renderTarget2D.DrawText(text, textFormat, layoutRect, blackBrush);
             renderTarget2D.EndDraw();
 
@@ -330,8 +330,8 @@ namespace WinFormsDirect3D11Sample
 
             // set render target, viewport and scrissor rectangle
             deviceContext.OMSetRenderTargets(renderTargetView, depthStencilView);
-            deviceContext.RSSetViewport(new Viewport(control.Width, control.Height));
-            deviceContext.RSSetScissorRect(control.Width, control.Height);
+            deviceContext.RSSetViewport(new Viewport(leftControl.Width, leftControl.Height));
+            deviceContext.RSSetScissorRect(leftControl.Width, leftControl.Height);
 
             // draw grid
             deviceContext.IASetPrimitiveTopology(PrimitiveTopology.LineList);
@@ -372,7 +372,7 @@ namespace WinFormsDirect3D11Sample
             Matrix4x4 world = Matrix4x4.CreateRotationX(time) * Matrix4x4.CreateRotationY(time * 2) * Matrix4x4.CreateRotationZ(time * .7f);
 
             Matrix4x4 view = Matrix4x4.CreateLookAt(new Vector3(0, 0, 25), new Vector3(0, 0, 0), Vector3.UnitY);
-            var AspectRatio = (float)control.ClientSize.Width / control.ClientSize.Height;
+            var AspectRatio = (float)leftControl.ClientSize.Width / leftControl.ClientSize.Height;
             Matrix4x4 projection = Matrix4x4.CreatePerspectiveFieldOfView((float)Math.PI / 4, AspectRatio, 0.1f, 100);
             Matrix4x4 viewProjection = Matrix4x4.Multiply(view, projection);
             Matrix4x4 worldViewProjection = Matrix4x4.Multiply(world, viewProjection);

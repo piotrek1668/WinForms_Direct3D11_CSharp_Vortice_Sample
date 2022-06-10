@@ -1,16 +1,16 @@
 namespace WinFormsDirect3D11Sample
 {
-    public partial class Form1 : Form
+    public partial class MainWindow : Form
     {
-        private readonly Control control = new("Direct3D11 Control", 10, 50, 600, 500);
-        private readonly Control control2D = new("Direct2D Control");
-        private readonly Label label;
+        private readonly Control leftControl = new("Direct3D11 Control", 10, 50, 600, 500);
+        private readonly Control rightControl = new("Direct2D Control");
+        private readonly Label labelDevice;
         private readonly Label labelFeatureLevel;
         private readonly Direct3D11 direct3D;
         private readonly System.Windows.Forms.Timer timer;
         private bool rendering = true;
 
-        public Form1()
+        public MainWindow()
         {
             InitializeComponent();
 
@@ -23,33 +23,33 @@ namespace WinFormsDirect3D11Sample
 
             button.Click += this.Button_Click;
             
-            label = new Label
+            labelDevice = new Label
             {
-                Text = "Direct3D11 Mode",
-                Size = new Size(150, 30),
+                Text = "Device:",
+                Size = new Size(300, 30),
                 Location = new Point(button.Left + button.Size.Width + 10, 15)
             };
 
             labelFeatureLevel = new Label
             {
-                Text = "Highest supported feature level: NONE",
-                Size = new Size(400, 30),
-                Location = new Point(label.Left + label.Width + 10, 15)
+                Text = "Feature level:",
+                Size = new Size(250, 30),
+                Location = new Point(labelDevice.Left + labelDevice.Width + 10, 15)
             };
 
-            control2D.Location = new Point(control.Width + control.Left + 10, control.Top);
-            control2D.Size = new Size(control.Width, control.Height);
-            control2D.BackColor = Color.Gray;
+            rightControl.Location = new Point(leftControl.Width + leftControl.Left + 10, leftControl.Top);
+            rightControl.Size = new Size(leftControl.Width, leftControl.Height);
+            rightControl.BackColor = Color.Gray;
 
-            control.BackColor = Color.Gray;
+            leftControl.BackColor = Color.Gray;
 
             this.Controls.Add(button);
-            this.Controls.Add(label);
+            this.Controls.Add(labelDevice);
             this.Controls.Add(labelFeatureLevel);
-            this.Controls.Add(control);
-            this.Controls.Add(control2D);
+            this.Controls.Add(leftControl);
+            this.Controls.Add(rightControl);
 
-            direct3D = new Direct3D11(this, control, control2D);
+            direct3D = new Direct3D11(this, leftControl, rightControl);
             direct3D.OnInit();
 
             timer = new System.Windows.Forms.Timer();
@@ -58,7 +58,7 @@ namespace WinFormsDirect3D11Sample
             timer.Start();
         }
 
-        ~Form1()
+        ~MainWindow()
         {
             direct3D?.Dispose();
         }
@@ -85,7 +85,7 @@ namespace WinFormsDirect3D11Sample
 
         public void UpdateLabels(string text1, string text2)
         {
-            this.label.Text = text1;
+            this.labelDevice.Text = text1;
             this.labelFeatureLevel.Text = text2;
         }
     }
