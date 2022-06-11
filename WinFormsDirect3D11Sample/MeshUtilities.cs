@@ -118,15 +118,15 @@ public static class MeshUtilities
     {
         var colorWhite = Colors.White;
         var offset = 1.0f;
-        var lineVerticesBufferSize = 70;
+        var lineVerticesBufferSize = 90;
         var lineVertices2 = new VertexPositionColor[lineVerticesBufferSize];
         var lineVertices3 = new VertexPositionColor[lineVerticesBufferSize];
         for (int i = 0; i < lineVerticesBufferSize; i++)
         {
             if ((i % 2) == 0)
             {
-                var vertex1 = new VertexPositionColor(new Vector3(-0.7f, offset, 0.0f), colorWhite);
-                var vertex2 = new VertexPositionColor(new Vector3(offset, -0.7f, 0.0f), colorWhite);
+                var vertex1 = new VertexPositionColor(new Vector3(-1.0f, offset, 0.0f), colorWhite);
+                var vertex2 = new VertexPositionColor(new Vector3(offset, -1.0f, 0.0f), colorWhite);
                 lineVertices2[i] = vertex1;
                 lineVertices3[i] = vertex2;
             }
@@ -150,13 +150,13 @@ public static class MeshUtilities
 
     public static MeshData CreateSignal()
     {
-        var colorYellow = Colors.Yellow;
-        var colorRed = Colors.Red;
+        var colorYellow = Colors.Black;
+        var colorRed = Colors.Yellow;
         float zIndex = 0.0f;
         ReadOnlySpan<VertexPositionColor> signalVertices = new VertexPositionColor[]
         {
-            new VertexPositionColor(new Vector3(-0.7f, -0.5f, zIndex), colorYellow),
-            new VertexPositionColor(new Vector3(-0.5f, -0.2f, zIndex), colorYellow),
+            new VertexPositionColor(new Vector3(-1.0f, -0.5f, zIndex), colorYellow),
+            new VertexPositionColor(new Vector3(-0.75f, -0.2f, zIndex), colorYellow),
             new VertexPositionColor(new Vector3(-0.2f, -0.1f, zIndex), colorYellow),
             new VertexPositionColor(new Vector3(-0.1f, 0.2f, zIndex), colorYellow),
             new VertexPositionColor(new Vector3(0.2f, -0.25f, zIndex), colorYellow),

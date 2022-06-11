@@ -56,17 +56,19 @@ namespace WinFormsDirect3D11Sample
         private int lineVerticesBufferSize;
         private int signalVerticesBufferSize;
 
-        private ID2D1RenderTarget renderTarget2D;
+        private ID2D1RenderTarget renderTarget2DLeft;
+        private ID2D1RenderTarget renderTarget2DRight;
+        
         private IDWriteTextFormat textFormat;
-        private readonly string text = "{%VARIABLE%}";
+        private readonly string text = "DirectWrite & Direct2D";
 
         private float value = 0.01f;
 
-        private readonly Color4 clearColor = new (0.0f, 0.0f, 0.0f, 1.0f);
-        private readonly Color4 colorYellow = new (1.0f, 1.0f, 0.0f, 1.0f);
-        private readonly Color4 colorRed = new (1.0f, 0.0f, 0.0f, 1.0f);
-        private readonly Color4 colorGreen = new (0.0f, 1.0f, 0.0f, 1.0f);
-        private readonly Color4 colorWhite = new (1.0f, 1.0f, 1.0f, 0.75f); // <- alpha does not work!!
+        private readonly Color4 clearColor = new(0.0f, 0.0f, 0.0f, 1.0f);
+        private readonly Color4 colorYellow = new(1.0f, 1.0f, 0.0f, 1.0f);
+        private readonly Color4 colorRed = new(1.0f, 0.0f, 0.0f, 1.0f);
+        private readonly Color4 colorGreen = new(0.0f, 1.0f, 0.0f, 1.0f);
+        private readonly Color4 colorWhite = new(1.0f, 1.0f, 1.0f, 0.75f); // <- alpha does not work!!
         private ID3D11Texture2D _texture;
 
         private ID3D11Buffer signalBuffer;
@@ -139,8 +141,9 @@ namespace WinFormsDirect3D11Sample
                     out tempDevice, out featureLevel, out tempContext).CheckError();
             }
 
+            var output = adapter.GetOutput(0);
             highestSupportedFeatureLevel = featureLevel;
-            this.mainWindow.UpdateLabels(adapter.Description1.Description, highestSupportedFeatureLevel.ToString());
+            this.mainWindow.UpdateLabels(adapter.Description1.Description, highestSupportedFeatureLevel.ToString(), $"{output.Description.DesktopCoordinates.Right}x{output.Description.DesktopCoordinates.Bottom}");
             device = tempDevice.QueryInterface<ID3D11Device1>();
             deviceContext = tempContext.QueryInterface<ID3D11DeviceContext1>();
             tempContext.Dispose();
@@ -199,8 +202,11 @@ namespace WinFormsDirect3D11Sample
                 PixelFormat = Vortice.DCommon.PixelFormat.Premultiplied
             };
 
+            var backBuffer2 = swapChain.GetBuffer<IDXGISurface>(0);
+            renderTarget2DLeft = direct2DFactory.CreateDxgiSurfaceRenderTarget(backBuffer2, renderTargetProperties);
+
             var backBuffer = swapChain2.GetBuffer<IDXGISurface>(0);
-            renderTarget2D = direct2DFactory.CreateDxgiSurfaceRenderTarget(backBuffer, renderTargetProperties);
+            renderTarget2DRight = direct2DFactory.CreateDxgiSurfaceRenderTarget(backBuffer, renderTargetProperties);
 
             depthStencilTexture = device.CreateTexture2D(Format.D32_Float, leftControl.Width, leftControl.Height, 1, 1, null, BindFlags.DepthStencil);
             depthStencilView = device.CreateDepthStencilView(depthStencilTexture!, new DepthStencilViewDescription(depthStencilTexture, DepthStencilViewDimension.Texture2D));
@@ -212,7 +218,7 @@ namespace WinFormsDirect3D11Sample
             MeshData signal = MeshUtilities.CreateSignal();
             signalBuffer = device.CreateBuffer(signal.VerticesColor, BindFlags.VertexBuffer);
 
-            lineVerticesBufferSize = 70;
+            lineVerticesBufferSize = 90;
             MeshData grid = MeshUtilities.CreateGrid();
             gridBuffer = device.CreateBuffer(grid.VerticesColor, BindFlags.VertexBuffer);
 
@@ -286,40 +292,55 @@ namespace WinFormsDirect3D11Sample
             deviceContext.RSSetScissorRect(rightControl.Width, rightControl.Height);
 
             // draw direct2d
-            renderTarget2D.BeginDraw();
-            renderTarget2D.Transform = Matrix3x2.Identity; // TODO: Rotation/Translation/etc. possible
-            renderTarget2D.Clear(clearColor);
-            var blackBrush = renderTarget2D.CreateSolidColorBrush(new Color4(1.0f, 1.0f, 1.0f, 1.0f));
-            var height = rightControl.Height / 5;
-            var layoutRect = new Rect(0, height * 4, rightControl.Width, height);
-            renderTarget2D.DrawText(text, textFormat, layoutRect, blackBrush);
-            renderTarget2D.EndDraw();
-
+            if (drawText)
+            {
+                renderTarget2DRight.BeginDraw();
+                renderTarget2DRight.Transform = Matrix3x2.Identity; // TODO: Rotation/Translation/etc. possible
+                renderTarget2DRight.Clear(Colors.CornflowerBlue);
+                var blackBrush = renderTarget2DRight.CreateSolidColorBrush(Colors.YellowGreen);
+                var height = rightControl.Height / 5;
+                var layoutRect = new Rect(0, height * 4, rightControl.Width, height);
+                renderTarget2DRight.DrawText(text, textFormat, layoutRect, blackBrush);
+                renderTarget2DRight.EndDraw();
+            }
+            
             // draw grid
-            deviceContext.IASetPrimitiveTopology(PrimitiveTopology.LineList);
-            deviceContext.IASetInputLayout(inputLayoutPositionColor);
-            deviceContext.IASetVertexBuffer(0, gridBuffer, VertexPositionColor.SizeInBytes);
-            deviceContext.VSSetShader(vertexShaderPositionColor);
-            deviceContext.PSSetShader(pixelShaderPositionColor);
-            deviceContext.Draw(lineVerticesBufferSize * 2, 0);
-
+            if (drawGrid)
+            {
+                deviceContext.IASetPrimitiveTopology(PrimitiveTopology.LineList);
+                deviceContext.IASetInputLayout(inputLayoutPositionColor);
+                deviceContext.IASetVertexBuffer(0, gridBuffer, VertexPositionColor.SizeInBytes);
+                deviceContext.VSSetShader(vertexShaderPositionColor);
+                deviceContext.PSSetShader(pixelShaderPositionColor);
+                deviceContext.Draw(lineVerticesBufferSize * 2, 0);
+            }
+            
             // draw signal
-            deviceContext.IASetPrimitiveTopology(PrimitiveTopology.LineStrip);
-            deviceContext.IASetVertexBuffer(0, signalBuffer, VertexPositionColor.SizeInBytes);
-            deviceContext.Draw(signalVerticesBufferSize, 0);
-
+            if (drawLine)
+            {
+                deviceContext.IASetPrimitiveTopology(PrimitiveTopology.LineStrip);
+                deviceContext.IASetInputLayout(inputLayoutPositionColor);
+                deviceContext.IASetVertexBuffer(0, signalBuffer, VertexPositionColor.SizeInBytes);
+                deviceContext.VSSetShader(vertexShaderPositionColor);
+                deviceContext.PSSetShader(pixelShaderPositionColor);
+                deviceContext.Draw(signalVerticesBufferSize, 0);
+            }
+            
             // draw cube (texture)
-            deviceContext.IASetPrimitiveTopology(PrimitiveTopology.TriangleList);
-            deviceContext.IASetInputLayout(inputLayoutPositionTexture);
-            deviceContext.IASetVertexBuffer(0, _vertexBuffer, VertexPositionNormalTexture.SizeInBytes);
-            deviceContext.IASetIndexBuffer(_indexBuffer, Format.R16_UInt, 0);
-            deviceContext.VSSetShader(vertexShaderPositionTexture);
-            deviceContext.VSSetConstantBuffer(0, _constantBuffer);
-            deviceContext.PSSetShader(pixelShaderPositionTexture);
-            deviceContext.PSSetShaderResource(0, shaderResourceView);
-            deviceContext.PSSetSampler(0, samplerState);
-            deviceContext.DrawIndexed(36, 0, 0);
-
+            if (drawCube)
+            {
+                deviceContext.IASetPrimitiveTopology(PrimitiveTopology.TriangleList);
+                deviceContext.IASetInputLayout(inputLayoutPositionTexture);
+                deviceContext.IASetVertexBuffer(0, _vertexBuffer, VertexPositionNormalTexture.SizeInBytes);
+                deviceContext.IASetIndexBuffer(_indexBuffer, Format.R16_UInt, 0);
+                deviceContext.VSSetShader(vertexShaderPositionTexture);
+                deviceContext.VSSetConstantBuffer(0, _constantBuffer);
+                deviceContext.PSSetShader(pixelShaderPositionTexture);
+                deviceContext.PSSetShaderResource(0, shaderResourceView);
+                deviceContext.PSSetSampler(0, samplerState);
+                deviceContext.DrawIndexed(36, 0, 0);
+            }
+            
             // present swapchain2
             Result result2 = swapChain2.Present(1, PresentFlags.None);
             if (result2.Failure && result2.Code == Vortice.DXGI.ResultCode.DeviceRemoved.Code) throw new Exception();
@@ -333,31 +354,56 @@ namespace WinFormsDirect3D11Sample
             deviceContext.RSSetViewport(new Viewport(leftControl.Width, leftControl.Height));
             deviceContext.RSSetScissorRect(leftControl.Width, leftControl.Height);
 
+            // draw direct2d
+            if (drawText)
+            {
+                renderTarget2DLeft.BeginDraw();
+                renderTarget2DLeft.Transform = Matrix3x2.Identity; // TODO: Rotation/Translation/etc. possible
+                renderTarget2DLeft.Clear(Colors.CornflowerBlue);
+                var blackBrush = renderTarget2DLeft.CreateSolidColorBrush(Colors.Orange);
+                var height = leftControl.Height / 5;
+                var layoutRect = new Rect(0, height * 4, leftControl.Width, height);
+                renderTarget2DLeft.DrawText(text, textFormat, layoutRect, blackBrush);
+                renderTarget2DLeft.EndDraw();
+            }
+
             // draw grid
-            deviceContext.IASetPrimitiveTopology(PrimitiveTopology.LineList);
-            deviceContext.IASetInputLayout(inputLayoutPositionColor);
-            deviceContext.IASetVertexBuffer(0, gridBuffer, VertexPositionColor.SizeInBytes);
-            deviceContext.VSSetShader(vertexShaderPositionColor);
-            deviceContext.PSSetShader(pixelShaderPositionColor);
-            deviceContext.Draw(lineVerticesBufferSize * 2, 0);
-
+            if (drawGrid)
+            {
+                deviceContext.IASetPrimitiveTopology(PrimitiveTopology.LineList);
+                deviceContext.IASetInputLayout(inputLayoutPositionColor);
+                deviceContext.IASetVertexBuffer(0, gridBuffer, VertexPositionColor.SizeInBytes);
+                deviceContext.VSSetShader(vertexShaderPositionColor);
+                deviceContext.PSSetShader(pixelShaderPositionColor);
+                deviceContext.Draw(lineVerticesBufferSize * 2, 0);
+            }
+            
             // draw signal
-            deviceContext.IASetPrimitiveTopology(PrimitiveTopology.LineStrip);
-            deviceContext.IASetVertexBuffer(0, signalBuffer, VertexPositionColor.SizeInBytes);
-            deviceContext.Draw(signalVerticesBufferSize, 0);
-
+            if (drawLine)
+            {
+                deviceContext.IASetPrimitiveTopology(PrimitiveTopology.LineStrip);
+                deviceContext.IASetInputLayout(inputLayoutPositionColor);
+                deviceContext.IASetVertexBuffer(0, signalBuffer, VertexPositionColor.SizeInBytes);
+                deviceContext.VSSetShader(vertexShaderPositionColor);
+                deviceContext.PSSetShader(pixelShaderPositionColor);
+                deviceContext.Draw(signalVerticesBufferSize, 0);
+            }
+            
             // draw cube (texture from file)
-            deviceContext.IASetPrimitiveTopology(PrimitiveTopology.TriangleList);
-            deviceContext.IASetInputLayout(inputLayoutPositionTexture);
-            deviceContext.IASetVertexBuffer(0, _vertexBuffer2, VertexPositionNormalTexture.SizeInBytes);
-            deviceContext.IASetIndexBuffer(_indexBuffer2, Format.R16_UInt, 0);
-            deviceContext.VSSetShader(vertexShaderPositionTexture);
-            deviceContext.VSSetConstantBuffer(0, _constantBuffer);
-            deviceContext.PSSetShader(pixelShaderPositionTexture);
-            deviceContext.PSSetShaderResource(0, _textureSRV);
-            deviceContext.PSSetSampler(0, _textureSampler);
-            deviceContext.DrawIndexed(36, 0, 0);
-
+            if (drawCube)
+            {
+                deviceContext.IASetPrimitiveTopology(PrimitiveTopology.TriangleList);
+                deviceContext.IASetInputLayout(inputLayoutPositionTexture);
+                deviceContext.IASetVertexBuffer(0, _vertexBuffer2, VertexPositionNormalTexture.SizeInBytes);
+                deviceContext.IASetIndexBuffer(_indexBuffer2, Format.R16_UInt, 0);
+                deviceContext.VSSetShader(vertexShaderPositionTexture);
+                deviceContext.VSSetConstantBuffer(0, _constantBuffer);
+                deviceContext.PSSetShader(pixelShaderPositionTexture);
+                deviceContext.PSSetShaderResource(0, _textureSRV);
+                deviceContext.PSSetSampler(0, _textureSampler);
+                deviceContext.DrawIndexed(36, 0, 0);
+            }
+            
             // present swapchain1
             Result result = swapChain.Present(1, PresentFlags.None);
             if (result.Failure && result.Code == Vortice.DXGI.ResultCode.DeviceRemoved.Code) throw new Exception();
@@ -367,20 +413,23 @@ namespace WinFormsDirect3D11Sample
         {
             if (deviceContext == null) return;
 
-            // update constant buffer for textured cube
-            var time = _clock.ElapsedMilliseconds / 1000.0f;
-            Matrix4x4 world = Matrix4x4.CreateRotationX(time) * Matrix4x4.CreateRotationY(time * 2) * Matrix4x4.CreateRotationZ(time * .7f);
+            if (drawCube)
+            {
+                // update constant buffer for textured cube
+                var time = _clock.ElapsedMilliseconds / 1000.0f;
+                Matrix4x4 world = Matrix4x4.CreateRotationX(time) * Matrix4x4.CreateRotationY(time * 2) * Matrix4x4.CreateRotationZ(time * .7f);
 
-            Matrix4x4 view = Matrix4x4.CreateLookAt(new Vector3(0, 0, 25), new Vector3(0, 0, 0), Vector3.UnitY);
-            var AspectRatio = (float)leftControl.ClientSize.Width / leftControl.ClientSize.Height;
-            Matrix4x4 projection = Matrix4x4.CreatePerspectiveFieldOfView((float)Math.PI / 4, AspectRatio, 0.1f, 100);
-            Matrix4x4 viewProjection = Matrix4x4.Multiply(view, projection);
-            Matrix4x4 worldViewProjection = Matrix4x4.Multiply(world, viewProjection);
+                Matrix4x4 view = Matrix4x4.CreateLookAt(new Vector3(0, 0, 25), new Vector3(0, 0, 0), Vector3.UnitY);
+                var AspectRatio = (float)leftControl.ClientSize.Width / leftControl.ClientSize.Height;
+                Matrix4x4 projection = Matrix4x4.CreatePerspectiveFieldOfView((float)Math.PI / 4, AspectRatio, 0.1f, 100);
+                Matrix4x4 viewProjection = Matrix4x4.Multiply(view, projection);
+                Matrix4x4 worldViewProjection = Matrix4x4.Multiply(world, viewProjection);
 
-            // Update constant buffer data
-            MappedSubresource mappedResource = deviceContext.Map(_constantBuffer, MapMode.WriteDiscard);
-            Unsafe.Copy(mappedResource.DataPointer.ToPointer(), ref worldViewProjection);
-            deviceContext.Unmap(_constantBuffer, 0);
+                // Update constant buffer data
+                MappedSubresource mappedResource = deviceContext.Map(_constantBuffer, MapMode.WriteDiscard);
+                Unsafe.Copy(mappedResource.DataPointer.ToPointer(), ref worldViewProjection);
+                deviceContext.Unmap(_constantBuffer, 0);
+            }
         }
 
         private static Format ToDXGIFormat(Guid guid)
@@ -647,6 +696,37 @@ namespace WinFormsDirect3D11Sample
             // We don't support n-channel formats
         };
 
+        private bool drawGrid = false;
+        private bool drawLine = false;
+        private bool drawCube = false;
+        private bool drawText = false;
+
+        public void SetDrawObject(string name)
+        {
+            drawGrid = false;
+            drawLine = false;
+            drawCube = false;
+            drawText = false;
+
+            switch (name)
+            {
+                case "drawGrid":
+                    this.drawGrid = true;
+                    break;
+                case "drawLine":
+                    this.drawLine = true;
+                    break;
+                case "drawCube":
+                    this.drawCube = true;
+                    break;
+                case "drawText":
+                    this.drawText = true;
+                    break;
+                default:
+                    break;
+            }
+        }
+
         internal void UpdateValue(float value)
         {
             this.value = value;
@@ -719,7 +799,7 @@ namespace WinFormsDirect3D11Sample
             this.swapChain.Dispose();
 
             this.backBufferTexture.Dispose();
-            this.renderTarget2D.Dispose();
+            this.renderTarget2DRight.Dispose();
             this.renderTargetView.Dispose();
             this.depthStencilTexture.Dispose();
             this.depthStencilView.Dispose();
