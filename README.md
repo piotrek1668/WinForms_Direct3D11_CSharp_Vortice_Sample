@@ -14,3 +14,8 @@ Examples shown in tool:
 ---
 
 ![image](https://user-images.githubusercontent.com/4056411/173185109-75b205bd-ecc7-4db0-90cf-efe47b980846.png)
+
+---
+
+How to build?
+- Just download the solution and open in Visual Studio (I used VS2022)
