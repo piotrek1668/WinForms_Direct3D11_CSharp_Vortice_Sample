@@ -7,21 +7,21 @@ namespace WinFormsDirect3D11Sample;
 
 public class MeshData
 {
-    public VertexPositionNormalTexture[] Vertices;
-    public VertexPositionColor[] VerticesColor;
-    public ushort[] Indices;
+    public readonly VertexPositionNormalTexture[] Vertices;
+    public readonly VertexPositionColor[] VerticesColor;
+    public readonly ushort[] Indices;
 
     public MeshData(VertexPositionColor[] vertices)
     {
         VerticesColor = vertices;
-        Indices = null; 
+        Indices = null;
     }
 
     public MeshData(VertexPositionNormalTexture[] vertices, ushort[] indices)
     {
         Vertices = vertices;
         Indices = indices;
-    }   
+    }
 }
 
 public static class MeshUtilities
@@ -30,26 +30,24 @@ public static class MeshUtilities
 
     public static MeshData CreateCube(float size)
     {
-        return CreateBox(new Vector3(size));
+        return MeshUtilities.CreateBox(new Vector3(size));
     }
 
-    public static MeshData CreateBox(in Vector3 size)
+    private static MeshData CreateBox(in Vector3 size)
     {
         List<VertexPositionNormalTexture> vertices = new();
         List<ushort> indices = new();
 
-        Vector3[] faceNormals = new Vector3[CubeFaceCount]
-        {
+        Vector3[] faceNormals = {
             Vector3.UnitZ,
-            new Vector3(0.0f, 0.0f, -1.0f),
+            new(0.0f, 0.0f, -1.0f),
             Vector3.UnitX,
-            new Vector3(-1.0f, 0.0f, 0.0f),
+            new(-1.0f, 0.0f, 0.0f),
             Vector3.UnitY,
-            new Vector3(0.0f, -1.0f, 0.0f),
+            new(0.0f, -1.0f, 0.0f),
         };
 
-        Vector2[] textureCoordinates = new Vector2[4]
-        {
+        Vector2[] textureCoordinates = {
             Vector2.UnitX,
             Vector2.One,
             Vector2.UnitY,
@@ -60,7 +58,7 @@ public static class MeshUtilities
 
         // Create each face in turn.
         int vbase = 0;
-        for (int i = 0; i < CubeFaceCount; i++)
+        for (int i = 0; i < MeshUtilities.CubeFaceCount; i++)
         {
             Vector3 normal = faceNormals[i];
 
@@ -152,19 +150,19 @@ public static class MeshUtilities
     {
         var colorYellow = Colors.Black;
         var colorRed = Colors.Yellow;
-        float zIndex = 0.0f;
+        const float ZIndex = 0.0f;
         ReadOnlySpan<VertexPositionColor> signalVertices = new VertexPositionColor[]
         {
-            new VertexPositionColor(new Vector3(-1.0f, -0.5f, zIndex), colorYellow),
-            new VertexPositionColor(new Vector3(-0.75f, -0.2f, zIndex), colorYellow),
-            new VertexPositionColor(new Vector3(-0.2f, -0.1f, zIndex), colorYellow),
-            new VertexPositionColor(new Vector3(-0.1f, 0.2f, zIndex), colorYellow),
-            new VertexPositionColor(new Vector3(0.2f, -0.25f, zIndex), colorYellow),
-            new VertexPositionColor(new Vector3(0.25f, 0.37f, zIndex), colorRed),
-            new VertexPositionColor(new Vector3(0.37f, -0.5f, zIndex), colorRed),
-            new VertexPositionColor(new Vector3(0.5f, -0.6f, zIndex), colorRed),
-            new VertexPositionColor(new Vector3(0.6f, 0.8f, zIndex), colorRed),
-            new VertexPositionColor(new Vector3(0.8f, 1.0f, zIndex), colorRed)
+            new(new Vector3(-1.0f, -0.5f, ZIndex), colorYellow),
+            new(new Vector3(-0.75f, -0.2f, ZIndex), colorYellow),
+            new(new Vector3(-0.2f, -0.1f, ZIndex), colorYellow),
+            new(new Vector3(-0.1f, 0.2f, ZIndex), colorYellow),
+            new(new Vector3(0.2f, -0.25f, ZIndex), colorYellow),
+            new(new Vector3(0.25f, 0.37f, ZIndex), colorRed),
+            new(new Vector3(0.37f, -0.5f, ZIndex), colorRed),
+            new(new Vector3(0.5f, -0.6f, ZIndex), colorRed),
+            new(new Vector3(0.6f, 0.8f, ZIndex), colorRed),
+            new(new Vector3(0.8f, 1.0f, ZIndex), colorRed)
         };
 
         return new MeshData(signalVertices.ToArray());

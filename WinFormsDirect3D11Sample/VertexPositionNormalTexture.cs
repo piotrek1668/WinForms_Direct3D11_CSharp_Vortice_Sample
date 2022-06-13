@@ -9,13 +9,12 @@ namespace WinFormsDirect3D11Sample;
 
 public readonly struct VertexPositionNormalTexture
 {
-    public static unsafe readonly int SizeInBytes = sizeof(VertexPositionNormalTexture);
+    public static readonly unsafe int SizeInBytes = sizeof(VertexPositionNormalTexture);
 
-    public static InputElementDescription[] InputElements = new[]
-    {
-        new InputElementDescription("POSITION", 0, Format.R32G32B32_Float, 0, 0),
-        new InputElementDescription("NORMAL", 0, Format.R32G32B32_Float, 12, 0),
-        new InputElementDescription("TEXCOORD", 0, Format.R32G32_Float, 24, 0)
+    public static readonly InputElementDescription[] InputElements = {
+        new("POSITION", 0, Format.R32G32B32_Float, 0, 0),
+        new("NORMAL", 0, Format.R32G32B32_Float, 12, 0),
+        new("TEXCOORD", 0, Format.R32G32_Float, 24, 0)
     };
 
     public VertexPositionNormalTexture(in Vector3 position, in Vector3 normal, in Vector2 textureCoordinate)

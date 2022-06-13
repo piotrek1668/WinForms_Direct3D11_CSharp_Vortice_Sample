@@ -10,12 +10,11 @@ namespace WinFormsDirect3D11Sample;
 
 public readonly struct VertexPositionColor
 {
-    public static unsafe readonly int SizeInBytes = sizeof(VertexPositionColor);
+    public static readonly unsafe int SizeInBytes = sizeof(VertexPositionColor);
 
-    public static InputElementDescription[] InputElements = new[]
-    {
-        new InputElementDescription("POSITION", 0, Format.R32G32B32_Float, 0, 0),
-        new InputElementDescription("COLOR", 0, Format.R32G32B32A32_Float, 12, 0)
+    public static readonly InputElementDescription[] InputElements = {
+        new("POSITION", 0, Format.R32G32B32_Float, 0, 0),
+        new("COLOR", 0, Format.R32G32B32A32_Float, 12, 0)
     };
 
     public VertexPositionColor(in Vector3 position, in Color4 color)

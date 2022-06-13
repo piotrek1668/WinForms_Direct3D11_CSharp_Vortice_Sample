@@ -1,22 +1,25 @@
-﻿using SharpGen.Runtime;
+﻿#nullable disable
+
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+
+using SharpGen.Runtime;
+
 using Vortice.D3DCompiler;
 using Vortice.Direct2D1;
 using Vortice.Direct3D;
 using Vortice.Direct3D11;
 using Vortice.Direct3D11.Debug;
 using Vortice.DirectWrite;
-using Vortice.DXGI; // Microsoft DirectX Graphics Infrastructure
+using Vortice.DXGI;
 using Vortice.Mathematics;
 using Vortice.WIC;
-using AlphaMode = Vortice.DXGI.AlphaMode;
+
 using BitmapInterpolationMode = Vortice.WIC.BitmapInterpolationMode;
 using Color = Vortice.Mathematics.Color;
 using FeatureLevel = Vortice.Direct3D.FeatureLevel;
-
-#nullable disable
+using ResultCode = Vortice.DXGI.ResultCode;
 
 namespace WinFormsDirect3D11Sample
 {
@@ -33,12 +36,12 @@ namespace WinFormsDirect3D11Sample
         private ID3D11Texture2D backBufferTexture2;
         private ID3D11RenderTargetView renderTargetView;
         private ID3D11RenderTargetView renderTargetView2;
-        public ID3D11Texture2D depthStencilTexture;
-        public ID3D11Texture2D depthStencilTexture2;
-        public ID3D11DepthStencilView depthStencilView;
-        public ID3D11DepthStencilView depthStencilView2;
+        private ID3D11Texture2D depthStencilTexture;
+        private ID3D11Texture2D depthStencilTexture2;
+        private ID3D11DepthStencilView depthStencilView;
+        private ID3D11DepthStencilView depthStencilView2;
         private FeatureLevel highestSupportedFeatureLevel;
-        private readonly bool debug = false;
+        private readonly bool debug;
 
         private ID3D11VertexShader vertexShaderPositionColor;
         private ID3D11VertexShader vertexShaderPositionTexture;
@@ -50,7 +53,7 @@ namespace WinFormsDirect3D11Sample
         private ID3D11InputLayout inputLayoutPositionTexture;
 
         private ID3D11SamplerState samplerState;
-        private Stopwatch _clock;
+        private Stopwatch clock;
         private ID3D11ShaderResourceView shaderResourceView;
 
         private int lineVerticesBufferSize;
@@ -58,34 +61,25 @@ namespace WinFormsDirect3D11Sample
 
         private ID2D1RenderTarget renderTarget2DLeft;
         private ID2D1RenderTarget renderTarget2DRight;
-        
+
         private IDWriteTextFormat textFormat;
-        private readonly string text = "DirectWrite & Direct2D";
-
-        private float value = 0.01f;
-
-        private readonly Color4 clearColor = new(0.0f, 0.0f, 0.0f, 1.0f);
-        private readonly Color4 colorYellow = new(1.0f, 1.0f, 0.0f, 1.0f);
-        private readonly Color4 colorRed = new(1.0f, 0.0f, 0.0f, 1.0f);
-        private readonly Color4 colorGreen = new(0.0f, 1.0f, 0.0f, 1.0f);
-        private readonly Color4 colorWhite = new(1.0f, 1.0f, 1.0f, 0.75f); // <- alpha does not work!!
-        private ID3D11Texture2D _texture;
+        private const string Text = "DirectWrite & Direct2D";
+        private ID3D11Texture2D texture;
 
         private ID3D11Buffer signalBuffer;
         private ID3D11Buffer gridBuffer;
-        private ID3D11Buffer _vertexBuffer;
-        private ID3D11Buffer _vertexBuffer2;
-        private ID3D11Buffer _indexBuffer;
-        private ID3D11Buffer _indexBuffer2;
-        private ID3D11Buffer _constantBuffer;
+        private ID3D11Buffer vertexBuffer;
+        private ID3D11Buffer vertexBuffer2;
+        private ID3D11Buffer indexBuffer;
+        private ID3D11Buffer indexBuffer2;
+        private ID3D11Buffer constantBuffer;
 
         private ID3D11Debug debugInterface;
-        private ID3D11ShaderResourceView _textureSRV;
-        private ID3D11SamplerState _textureSampler;
+        private ID3D11ShaderResourceView textureSrv;
+        private ID3D11SamplerState textureSampler;
 
         // list of featureLevels this app can support
-        private static readonly FeatureLevel[] featureLevels = new[]
-        {
+        private static readonly FeatureLevel[] FeatureLevels = {
             FeatureLevel.Level_11_1,
             FeatureLevel.Level_11_0,
             FeatureLevel.Level_10_1,
@@ -129,15 +123,18 @@ namespace WinFormsDirect3D11Sample
             }
 
             using IDXGIAdapter1 adapter = GetHardwareAdapter();
-            if (adapter == null) return;
+            if (adapter == null)
+            {
+                return;
+            }
 
-            if (D3D11.D3D11CreateDevice(adapter, DriverType.Unknown, deviceCreationFlags, featureLevels,
-                out ID3D11Device tempDevice, out FeatureLevel featureLevel, out ID3D11DeviceContext tempContext).Failure)
+            if (D3D11.D3D11CreateDevice(adapter, DriverType.Unknown, deviceCreationFlags, Direct3D11.FeatureLevels,
+                    out ID3D11Device tempDevice, out FeatureLevel featureLevel, out ID3D11DeviceContext tempContext).Failure)
             {
                 // Handle device interface creation failure if it occurs.
                 // For example, reduce the feature level requirement, or fail over 
                 // to WARP rendering.
-                D3D11.D3D11CreateDevice(null, DriverType.Warp, deviceCreationFlags, featureLevels,
+                D3D11.D3D11CreateDevice(null, DriverType.Warp, deviceCreationFlags, Direct3D11.FeatureLevels,
                     out tempDevice, out featureLevel, out tempContext).CheckError();
             }
 
@@ -230,9 +227,9 @@ namespace WinFormsDirect3D11Sample
             inputLayoutPositionColor = device.CreateInputLayout(VertexPositionColor.InputElements, vertexShaderByteCodePositionColor);
 
             MeshData mesh = MeshUtilities.CreateCube(3.0f);
-            _vertexBuffer = device.CreateBuffer(mesh.Vertices, BindFlags.VertexBuffer);
-            _indexBuffer = device.CreateBuffer(mesh.Indices, BindFlags.IndexBuffer);
-            _constantBuffer = device.CreateConstantBuffer<Matrix4x4>();
+            this.vertexBuffer = device.CreateBuffer(mesh.Vertices, BindFlags.VertexBuffer);
+            this.indexBuffer = device.CreateBuffer(mesh.Indices, BindFlags.IndexBuffer);
+            this.constantBuffer = device.CreateConstantBuffer<Matrix4x4>();
 
             ReadOnlySpan<Color> pixels = stackalloc Color[16] {
                 new Color(0xFFFFFFFF),
@@ -253,8 +250,8 @@ namespace WinFormsDirect3D11Sample
                 new Color(0xFFFFFFFF),
             };
 
-            var texture = device.CreateTexture2D(Format.R8G8B8A8_UNorm, 4, 4, pixels);
-            shaderResourceView = device.CreateShaderResourceView(texture);
+            var texture2D = device.CreateTexture2D(Format.R8G8B8A8_UNorm, 4, 4, pixels);
+            shaderResourceView = device.CreateShaderResourceView(texture2D);
             samplerState = device.CreateSamplerState(SamplerDescription.PointWrap);
 
             Span<byte> vertexShaderByteCodeCube = CompileBytecode("Cube.hlsl", "VSMain", "vs_4_0");
@@ -265,14 +262,14 @@ namespace WinFormsDirect3D11Sample
             inputLayoutPositionTexture = device.CreateInputLayout(VertexPositionNormalTexture.InputElements, vertexShaderByteCodeCube);
 
             MeshData mesh2 = MeshUtilities.CreateCube(8.0f);
-            _vertexBuffer2 = device.CreateBuffer(mesh2.Vertices, BindFlags.VertexBuffer);
-            _indexBuffer2 = device.CreateBuffer(mesh2.Indices, BindFlags.IndexBuffer);
+            this.vertexBuffer2 = device.CreateBuffer(mesh2.Vertices, BindFlags.VertexBuffer);
+            this.indexBuffer2 = device.CreateBuffer(mesh2.Indices, BindFlags.IndexBuffer);
 
             LoadTexture("10points.png");
-            _textureSRV = device.CreateShaderResourceView(_texture);
-            _textureSampler = device.CreateSamplerState(SamplerDescription.PointWrap);
+            this.textureSrv = device.CreateShaderResourceView(this.texture);
+            this.textureSampler = device.CreateSamplerState(SamplerDescription.PointWrap);
 
-            _clock = Stopwatch.StartNew();
+            this.clock = Stopwatch.StartNew();
 
             // use to report live object which need to be disposed!
             this.debugInterface.ReportLiveDeviceObjects(ReportLiveDeviceObjectFlags.Summary);
@@ -280,7 +277,14 @@ namespace WinFormsDirect3D11Sample
 
         internal void OnRender()
         {
-            if (deviceContext == null || renderTargetView == null || renderTargetView2 == null || depthStencilView == null || swapChain == null) return;
+            if ((this.deviceContext == null) ||
+                (this.renderTargetView == null) ||
+                (this.renderTargetView2 == null) ||
+                (this.depthStencilView == null) ||
+                (this.swapChain == null))
+            {
+                return;
+            }
 
             // clear render target and depth stencil view
             deviceContext.ClearRenderTargetView(renderTargetView2, Colors.CornflowerBlue);
@@ -300,10 +304,10 @@ namespace WinFormsDirect3D11Sample
                 var blackBrush = renderTarget2DRight.CreateSolidColorBrush(Colors.YellowGreen);
                 var height = rightControl.Height / 5;
                 var layoutRect = new Rect(0, height * 4, rightControl.Width, height);
-                renderTarget2DRight.DrawText(text, textFormat, layoutRect, blackBrush);
+                renderTarget2DRight.DrawText(Direct3D11.Text, textFormat, layoutRect, blackBrush);
                 renderTarget2DRight.EndDraw();
             }
-            
+
             // draw grid
             if (drawGrid)
             {
@@ -314,7 +318,7 @@ namespace WinFormsDirect3D11Sample
                 deviceContext.PSSetShader(pixelShaderPositionColor);
                 deviceContext.Draw(lineVerticesBufferSize * 2, 0);
             }
-            
+
             // draw signal
             if (drawLine)
             {
@@ -325,25 +329,28 @@ namespace WinFormsDirect3D11Sample
                 deviceContext.PSSetShader(pixelShaderPositionColor);
                 deviceContext.Draw(signalVerticesBufferSize, 0);
             }
-            
+
             // draw cube (texture)
             if (drawCube)
             {
                 deviceContext.IASetPrimitiveTopology(PrimitiveTopology.TriangleList);
                 deviceContext.IASetInputLayout(inputLayoutPositionTexture);
-                deviceContext.IASetVertexBuffer(0, _vertexBuffer, VertexPositionNormalTexture.SizeInBytes);
-                deviceContext.IASetIndexBuffer(_indexBuffer, Format.R16_UInt, 0);
+                deviceContext.IASetVertexBuffer(0, this.vertexBuffer, VertexPositionNormalTexture.SizeInBytes);
+                deviceContext.IASetIndexBuffer(this.indexBuffer, Format.R16_UInt, 0);
                 deviceContext.VSSetShader(vertexShaderPositionTexture);
-                deviceContext.VSSetConstantBuffer(0, _constantBuffer);
+                deviceContext.VSSetConstantBuffer(0, this.constantBuffer);
                 deviceContext.PSSetShader(pixelShaderPositionTexture);
                 deviceContext.PSSetShaderResource(0, shaderResourceView);
                 deviceContext.PSSetSampler(0, samplerState);
                 deviceContext.DrawIndexed(36, 0, 0);
             }
-            
+
             // present swapchain2
             Result result2 = swapChain2.Present(1, PresentFlags.None);
-            if (result2.Failure && result2.Code == Vortice.DXGI.ResultCode.DeviceRemoved.Code) throw new Exception();
+            if (result2.Failure && (result2.Code == ResultCode.DeviceRemoved.Code))
+            {
+                throw new Exception();
+            }
 
             // clear render target and depth stencil view
             deviceContext.ClearRenderTargetView(renderTargetView, Colors.CornflowerBlue);
@@ -358,12 +365,12 @@ namespace WinFormsDirect3D11Sample
             if (drawText)
             {
                 renderTarget2DLeft.BeginDraw();
-                renderTarget2DLeft.Transform = Matrix3x2.Identity; // TODO: Rotation/Translation/etc. possible
+                renderTarget2DLeft.Transform = Matrix3x2.Identity; // Rotation/Translation/etc. possible
                 renderTarget2DLeft.Clear(Colors.CornflowerBlue);
                 var blackBrush = renderTarget2DLeft.CreateSolidColorBrush(Colors.Orange);
                 var height = leftControl.Height / 5;
                 var layoutRect = new Rect(0, height * 4, leftControl.Width, height);
-                renderTarget2DLeft.DrawText(text, textFormat, layoutRect, blackBrush);
+                renderTarget2DLeft.DrawText(Direct3D11.Text, textFormat, layoutRect, blackBrush);
                 renderTarget2DLeft.EndDraw();
             }
 
@@ -388,35 +395,41 @@ namespace WinFormsDirect3D11Sample
                 deviceContext.PSSetShader(pixelShaderPositionColor);
                 deviceContext.Draw(signalVerticesBufferSize, 0);
             }
-            
+
             // draw cube (texture from file)
             if (drawCube)
             {
                 deviceContext.IASetPrimitiveTopology(PrimitiveTopology.TriangleList);
                 deviceContext.IASetInputLayout(inputLayoutPositionTexture);
-                deviceContext.IASetVertexBuffer(0, _vertexBuffer2, VertexPositionNormalTexture.SizeInBytes);
-                deviceContext.IASetIndexBuffer(_indexBuffer2, Format.R16_UInt, 0);
+                deviceContext.IASetVertexBuffer(0, this.vertexBuffer2, VertexPositionNormalTexture.SizeInBytes);
+                deviceContext.IASetIndexBuffer(this.indexBuffer2, Format.R16_UInt, 0);
                 deviceContext.VSSetShader(vertexShaderPositionTexture);
-                deviceContext.VSSetConstantBuffer(0, _constantBuffer);
+                deviceContext.VSSetConstantBuffer(0, this.constantBuffer);
                 deviceContext.PSSetShader(pixelShaderPositionTexture);
-                deviceContext.PSSetShaderResource(0, _textureSRV);
-                deviceContext.PSSetSampler(0, _textureSampler);
+                deviceContext.PSSetShaderResource(0, this.textureSrv);
+                deviceContext.PSSetSampler(0, this.textureSampler);
                 deviceContext.DrawIndexed(36, 0, 0);
             }
-            
+
             // present swapchain1
             Result result = swapChain.Present(1, PresentFlags.None);
-            if (result.Failure && result.Code == Vortice.DXGI.ResultCode.DeviceRemoved.Code) throw new Exception();
+            if (result.Failure && (result.Code == ResultCode.DeviceRemoved.Code))
+            {
+                throw new Exception();
+            }
         }
 
         internal void OnUpdate()
         {
-            if (deviceContext == null) return;
+            if (deviceContext == null)
+            {
+                return;
+            }
 
             if (drawCube)
             {
                 // update constant buffer for textured cube
-                var time = _clock.ElapsedMilliseconds / 1000.0f;
+                var time = this.clock.ElapsedMilliseconds / 1000.0f;
                 Matrix4x4 world = Matrix4x4.CreateRotationX(time) * Matrix4x4.CreateRotationY(time * 2) * Matrix4x4.CreateRotationZ(time * .7f);
 
                 Matrix4x4 view = Matrix4x4.CreateLookAt(new Vector3(0, 0, 25), new Vector3(0, 0, 0), Vector3.UnitY);
@@ -426,9 +439,9 @@ namespace WinFormsDirect3D11Sample
                 Matrix4x4 worldViewProjection = Matrix4x4.Multiply(world, viewProjection);
 
                 // Update constant buffer data
-                MappedSubresource mappedResource = deviceContext.Map(_constantBuffer, MapMode.WriteDiscard);
+                MappedSubresource mappedResource = deviceContext.Map(this.constantBuffer, MapMode.WriteDiscard);
                 Unsafe.Copy(mappedResource.DataPointer.ToPointer(), ref worldViewProjection);
-                deviceContext.Unmap(_constantBuffer, 0);
+                deviceContext.Unmap(this.constantBuffer, 0);
             }
         }
 
@@ -447,7 +460,9 @@ namespace WinFormsDirect3D11Sample
             using IWICComponentInfo info = factory.CreateComponentInfo(targetGuid);
             ComponentType type = info.ComponentType;
             if (type != ComponentType.PixelFormat)
+            {
                 return 0;
+            }
 
             using IWICPixelFormatInfo pixelFormatInfo = info.QueryInterface<IWICPixelFormatInfo>();
             return pixelFormatInfo.BitsPerPixel;
@@ -468,25 +483,15 @@ namespace WinFormsDirect3D11Sample
             Guid pixelFormat = frame.PixelFormat;
             Guid convertGUID = pixelFormat;
 
-            bool useWIC2 = true;
             Format format = ToDXGIFormat(pixelFormat);
             int bpp = 0;
             if (format == Format.Unknown)
             {
                 if (pixelFormat == PixelFormat.Format96bppRGBFixedPoint)
                 {
-                    if (useWIC2)
-                    {
-                        convertGUID = PixelFormat.Format96bppRGBFixedPoint;
-                        format = Format.R32G32B32_Float;
-                        bpp = 96;
-                    }
-                    else
-                    {
-                        convertGUID = PixelFormat.Format128bppRGBAFloat;
-                        format = Format.R32G32B32A32_Float;
-                        bpp = 128;
-                    }
+                    convertGUID = PixelFormat.Format96bppRGBFixedPoint;
+                    format = Format.R32G32B32_Float;
+                    bpp = 96;
                 }
                 else
                 {
@@ -555,10 +560,14 @@ namespace WinFormsDirect3D11Sample
             byte[] pixels = new byte[sizeInBytes];
 
             if (width == 0)
+            {
                 width = size.Width;
+            }
 
             if (height == 0)
+            {
                 height = size.Height;
+            }
 
             // Load image data
             if (convertGUID == pixelFormat && size.Width == width && size.Height == height)
@@ -608,7 +617,7 @@ namespace WinFormsDirect3D11Sample
                 converter.CopyPixels(rowPitch, pixels);
             }
 
-            _texture = device.CreateTexture2D(format, size.Width, size.Height, pixels);
+            this.texture = device.CreateTexture2D(format, size.Width, size.Height, pixels);
         }
 
         // TODO: Remove once new release of Vortice gets out (Vortice.WIC.PixelFormat)
@@ -696,10 +705,10 @@ namespace WinFormsDirect3D11Sample
             // We don't support n-channel formats
         };
 
-        private bool drawGrid = false;
-        private bool drawLine = false;
-        private bool drawCube = false;
-        private bool drawText = false;
+        private bool drawGrid;
+        private bool drawLine;
+        private bool drawCube;
+        private bool drawText;
 
         public void SetDrawObject(string name)
         {
@@ -722,14 +731,7 @@ namespace WinFormsDirect3D11Sample
                 case "drawText":
                     this.drawText = true;
                     break;
-                default:
-                    break;
             }
-        }
-
-        internal void UpdateValue(float value)
-        {
-            this.value = value;
         }
 
         private static Span<byte> CompileBytecode(string shaderName, string entryPoint, string profile)
@@ -755,7 +757,9 @@ namespace WinFormsDirect3D11Sample
                 for (int adapterIndex = 0; factory6.EnumAdapterByGpuPreference(adapterIndex, GpuPreference.HighPerformance, out adapter).Success; adapterIndex++)
                 {
                     if (adapter == null)
+                    {
                         continue;
+                    }
 
                     AdapterDescription1 desc = adapter.Description1;
                     if ((desc.Flags & AdapterFlags.Software) != AdapterFlags.None)
@@ -765,13 +769,13 @@ namespace WinFormsDirect3D11Sample
                         continue;
                     }
 
+                    factory6.Dispose();
+
                     return adapter;
                 }
-
-                factory6.Dispose();
             }
 
-            if (adapter == null)
+            if ((adapter == null) && (factory6 != null))
             {
                 for (int adapterIndex = 0; factory6.EnumAdapters1(adapterIndex, out adapter).Success; adapterIndex++)
                 {
@@ -783,9 +787,13 @@ namespace WinFormsDirect3D11Sample
                         continue;
                     }
 
+                    factory6.Dispose();
+
                     return adapter;
                 }
             }
+
+            factory6?.Dispose();
 
             return adapter;
         }
@@ -806,9 +814,9 @@ namespace WinFormsDirect3D11Sample
 
             this.gridBuffer.Dispose();
             this.signalBuffer.Dispose();
-            this._constantBuffer.Dispose();
-            this._vertexBuffer.Dispose();
-            this._indexBuffer.Dispose();
+            this.constantBuffer.Dispose();
+            this.vertexBuffer.Dispose();
+            this.indexBuffer.Dispose();
 
             this.pixelShaderPositionColor.Dispose();
             this.pixelShaderPositionTexture.Dispose();
