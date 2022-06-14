@@ -138,9 +138,14 @@ namespace WinFormsDirect3D11Sample
                     out tempDevice, out featureLevel, out tempContext).CheckError();
             }
 
-            var output = adapter.GetOutput(0);
+            string resolution = "<not available>";
+            if (adapter.EnumOutputs(0, out IDXGIOutput output).Success)
+            {
+                resolution = $"{output.Description.DesktopCoordinates.Right}x{output.Description.DesktopCoordinates.Bottom}";
+            }
+
             highestSupportedFeatureLevel = featureLevel;
-            this.mainWindow.UpdateLabels(adapter.Description1.Description, highestSupportedFeatureLevel.ToString(), $"{output.Description.DesktopCoordinates.Right}x{output.Description.DesktopCoordinates.Bottom}");
+            this.mainWindow.UpdateLabels(adapter.Description1.Description, highestSupportedFeatureLevel.ToString(), resolution);
             device = tempDevice.QueryInterface<ID3D11Device1>();
             deviceContext = tempContext.QueryInterface<ID3D11DeviceContext1>();
             tempContext.Dispose();
