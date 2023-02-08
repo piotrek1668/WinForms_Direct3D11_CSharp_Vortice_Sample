@@ -80,6 +80,9 @@ namespace WinFormsDirect3D11Sample
 
         // list of featureLevels this app can support
         private static readonly FeatureLevel[] FeatureLevels = {
+            FeatureLevel.Level_12_2,
+            FeatureLevel.Level_12_1,
+            FeatureLevel.Level_12_0,
             FeatureLevel.Level_11_1,
             FeatureLevel.Level_11_0,
             FeatureLevel.Level_10_1,
