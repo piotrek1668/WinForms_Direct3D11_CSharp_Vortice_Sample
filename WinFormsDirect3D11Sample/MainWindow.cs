@@ -83,10 +83,19 @@ namespace WinFormsDirect3D11Sample
                 Name = "drawText"
             };
 
+            Button drawAll = new()
+            {
+                Text = @"Draw all",
+                Size = new Size(ButtonWidth, ButtonHeight),
+                Location = new Point(drawText.Left + drawText.Width + Offset, 10),
+                Name = "drawAll"
+            };
+
             drawTriangleButton.Click += Button_Click;
             drawLine.Click += Button_Click;
             drawCube.Click += Button_Click;
             drawText.Click += Button_Click;
+            drawAll.Click += Button_Click;
 
             var labelInformation = new Label {
                 Text = @"Device information:",
@@ -130,6 +139,7 @@ namespace WinFormsDirect3D11Sample
             Controls.Add(drawLine);
             Controls.Add(drawCube);
             Controls.Add(drawText);
+            Controls.Add(drawAll);
             Controls.Add(labelInformation);
             Controls.Add(labelDevice);
             Controls.Add(labelFeatureLevel);

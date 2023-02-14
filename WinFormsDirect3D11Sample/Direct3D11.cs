@@ -311,7 +311,7 @@ namespace WinFormsDirect3D11Sample
                 renderTarget2DRight.Clear(Colors.CornflowerBlue);
                 var blackBrush = renderTarget2DRight.CreateSolidColorBrush(Colors.YellowGreen);
                 var height = rightControl.Height / 5;
-                var layoutRect = new Rect(0, height * 4, rightControl.Width, height);
+                var layoutRect = new Rectangle(0, height * 4, rightControl.Width, height);
                 renderTarget2DRight.DrawText(Direct3D11.Text, textFormat, layoutRect, blackBrush);
                 renderTarget2DRight.EndDraw();
             }
@@ -377,7 +377,7 @@ namespace WinFormsDirect3D11Sample
                 renderTarget2DLeft.Clear(Colors.CornflowerBlue);
                 var blackBrush = renderTarget2DLeft.CreateSolidColorBrush(Colors.Orange);
                 var height = leftControl.Height / 5;
-                var layoutRect = new Rect(0, height * 4, leftControl.Width, height);
+                var layoutRect = new Rectangle(0, height * 4, leftControl.Width, height);
                 renderTarget2DLeft.DrawText(Direct3D11.Text, textFormat, layoutRect, blackBrush);
                 renderTarget2DLeft.EndDraw();
             }
@@ -485,7 +485,7 @@ namespace WinFormsDirect3D11Sample
             using IWICBitmapDecoder decoder = wicFactory.CreateDecoderFromFileName(textureFile);
             using IWICBitmapFrameDecode frame = decoder.GetFrame(0);
 
-            SizeI size = frame.Size;
+            Size size = frame.Size;
 
             // Determine format
             Guid pixelFormat = frame.PixelFormat;
@@ -739,6 +739,12 @@ namespace WinFormsDirect3D11Sample
                 case "drawText":
                     this.drawText = true;
                     break;
+                case "drawAll":
+                    drawGrid = true;
+                    drawLine = true;
+                    drawCube = true;
+                    drawText = true;
+                    break;
             }
         }
 
@@ -747,8 +753,8 @@ namespace WinFormsDirect3D11Sample
             string assetsPath = Path.Combine(AppContext.BaseDirectory, "Assets");
             string shaderFile = Path.Combine(assetsPath, shaderName);
 
-            using Blob blob = Compiler.CompileFromFile(shaderFile, entryPoint, profile);
-            return blob.AsSpan();
+            Compiler.CompileFromFile(shaderFile, entryPoint, profile, out Blob blob, out _);
+            return blob.AsBytes();
         }
 
         private static IDXGIAdapter1 GetHardwareAdapter()
