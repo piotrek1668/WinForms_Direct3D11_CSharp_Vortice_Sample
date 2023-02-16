@@ -35,16 +35,13 @@ public static class MeshUtilities
 
     private static MeshData CreateBox(in Vector3 size)
     {
-        List<VertexPositionNormalTexture> vertices = new();
-        List<ushort> indices = new();
+        List<VertexPositionNormalTexture> vertices = new List<VertexPositionNormalTexture>();
+        List<ushort> indices = new List<ushort>();
 
         Vector3[] faceNormals = {
-            Vector3.UnitZ,
-            new(0.0f, 0.0f, -1.0f),
-            Vector3.UnitX,
-            new(-1.0f, 0.0f, 0.0f),
-            Vector3.UnitY,
-            new(0.0f, -1.0f, 0.0f),
+            Vector3.UnitZ, new Vector3(0.0f, 0.0f, -1.0f),
+            Vector3.UnitX, new Vector3(-1.0f, 0.0f, 0.0f),
+            Vector3.UnitY, new Vector3(0.0f, -1.0f, 0.0f),
         };
 
         Vector2[] textureCoordinates = {
@@ -153,16 +150,16 @@ public static class MeshUtilities
         const float ZIndex = 0.0f;
         ReadOnlySpan<VertexPositionColor> signalVertices = new VertexPositionColor[]
         {
-            new(new Vector3(-1.0f, -0.5f, ZIndex), colorYellow),
-            new(new Vector3(-0.75f, -0.2f, ZIndex), colorYellow),
-            new(new Vector3(-0.2f, -0.1f, ZIndex), colorYellow),
-            new(new Vector3(-0.1f, 0.2f, ZIndex), colorYellow),
-            new(new Vector3(0.2f, -0.25f, ZIndex), colorYellow),
-            new(new Vector3(0.25f, 0.37f, ZIndex), colorRed),
-            new(new Vector3(0.37f, -0.5f, ZIndex), colorRed),
-            new(new Vector3(0.5f, -0.6f, ZIndex), colorRed),
-            new(new Vector3(0.6f, 0.8f, ZIndex), colorRed),
-            new(new Vector3(0.8f, 1.0f, ZIndex), colorRed)
+            new VertexPositionColor(new Vector3(-1.0f, -0.5f, ZIndex), colorYellow),
+            new VertexPositionColor(new Vector3(-0.75f, -0.2f, ZIndex), colorYellow),
+            new VertexPositionColor(new Vector3(-0.2f, -0.1f, ZIndex), colorYellow),
+            new VertexPositionColor(new Vector3(-0.1f, 0.2f, ZIndex), colorYellow),
+            new VertexPositionColor(new Vector3(0.2f, -0.25f, ZIndex), colorYellow),
+            new VertexPositionColor(new Vector3(0.25f, 0.37f, ZIndex), colorRed),
+            new VertexPositionColor(new Vector3(0.37f, -0.5f, ZIndex), colorRed),
+            new VertexPositionColor(new Vector3(0.5f, -0.6f, ZIndex), colorRed),
+            new VertexPositionColor(new Vector3(0.6f, 0.8f, ZIndex), colorRed),
+            new VertexPositionColor(new Vector3(0.8f, 1.0f, ZIndex), colorRed)
         };
 
         return new MeshData(signalVertices.ToArray());
