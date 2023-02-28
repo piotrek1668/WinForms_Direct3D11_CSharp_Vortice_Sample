@@ -73,6 +73,7 @@ internal unsafe class Direct3D11 : IDisposable
     private ID3D11Buffer indexBuffer;
     private ID3D11Buffer indexBuffer2;
     private ID3D11Buffer constantBuffer;
+    private ID3D11Buffer constantBuffer2;
 
     private ID3D11Debug debugInterface;
     private ID3D11ShaderResourceView textureSrv;
@@ -91,7 +92,117 @@ internal unsafe class Direct3D11 : IDisposable
         FeatureLevel.Level_9_2,
         FeatureLevel.Level_9_1,
     };
+    
+    private float eyeX;
+    private float eyeY;
+    private float eyeZ = 5;
 
+    public float EyeX
+    {
+        get => this.eyeX;
+        set
+        {
+            this.eyeX = value;
+            this.leftControl.Invalidate();
+            this.rightControl.Invalidate();
+        }
+    }
+
+    public float EyeY
+    {
+        get => this.eyeY;
+        set
+        {
+            this.eyeY = value;
+            this.leftControl.Invalidate();
+            this.rightControl.Invalidate();
+        }
+    }
+
+    public float EyeZ
+    {
+        get => this.eyeZ;
+        set
+        {
+            this.eyeZ = value;
+            this.leftControl.Invalidate();
+            this.rightControl.Invalidate();
+        }
+    }
+
+    private float atX;
+    private float atY;
+    private float atZ;
+
+    public float AtX
+    {
+        get => this.atX;
+        set
+        {
+            this.atX = value;
+            this.leftControl.Invalidate();
+            this.rightControl.Invalidate();
+        }
+    }
+
+    public float AtY
+    {
+        get => this.atY;
+        set
+        {
+            this.atY = value;
+            this.leftControl.Invalidate();
+            this.rightControl.Invalidate();
+        }
+    }
+
+    public float AtZ
+    {
+        get => this.atZ;
+        set
+        {
+            this.atZ = value;
+            this.leftControl.Invalidate();
+            this.rightControl.Invalidate();
+        }
+    }
+
+    private float upX;
+    private float upY = -1;
+    private float upZ;
+
+    public float UpX
+    {
+        get => this.upX;
+        set
+        {
+            this.upX = value;
+            this.leftControl.Invalidate();
+            this.rightControl.Invalidate();
+        }
+    }
+
+    public float UpY
+    {
+        get => this.upY;
+        set
+        {
+            this.upY = value;
+            this.leftControl.Invalidate();
+            this.rightControl.Invalidate();
+        }
+    }
+
+    public float UpZ
+    {
+        get => this.upZ;
+        set
+        {
+            this.upZ = value;
+            this.leftControl.Invalidate();
+            this.rightControl.Invalidate();
+        }
+    }
     public Direct3D11(MainWindow form, Control control, Control control2D)
     {
         this.mainWindow = form;
@@ -174,12 +285,10 @@ internal unsafe class Direct3D11 : IDisposable
             Width = rightControl.ClientSize.Width,
             Height = rightControl.ClientSize.Height,
             Format = Format.R8G8B8A8_UNorm,
-            BufferCount = 2,
+            BufferCount = 1,
             BufferUsage = Usage.RenderTargetOutput,
             SampleDescription = SampleDescription.Default,
-            Scaling = Scaling.Stretch,
-            SwapEffect = SwapEffect.FlipDiscard,
-            AlphaMode = AlphaMode.Ignore
+            SwapEffect = SwapEffect.Discard
         };
 
         SwapChainFullscreenDescription fullscreenDescription = new() { Windowed = true };
@@ -238,6 +347,7 @@ internal unsafe class Direct3D11 : IDisposable
         this.vertexBuffer = device.CreateBuffer(mesh.Vertices, BindFlags.VertexBuffer);
         this.indexBuffer = device.CreateBuffer(mesh.Indices, BindFlags.IndexBuffer);
         this.constantBuffer = device.CreateConstantBuffer<Matrix4x4>();
+        this.constantBuffer2 = device.CreateConstantBuffer<Matrix4x4>();
 
         ReadOnlySpan<Color> pixels = stackalloc Color[16] {
             new Color(0xFFFFFFFF),
@@ -323,6 +433,7 @@ internal unsafe class Direct3D11 : IDisposable
             deviceContext.IASetInputLayout(inputLayoutPositionColor);
             deviceContext.IASetVertexBuffer(0, gridBuffer, VertexPositionColor.SizeInBytes);
             deviceContext.VSSetShader(vertexShaderPositionColor);
+            deviceContext.VSSetConstantBuffer(1, this.constantBuffer2);
             deviceContext.PSSetShader(pixelShaderPositionColor);
             deviceContext.Draw(lineVerticesBufferSize * 2, 0);
         }
@@ -389,10 +500,11 @@ internal unsafe class Direct3D11 : IDisposable
             deviceContext.IASetInputLayout(inputLayoutPositionColor);
             deviceContext.IASetVertexBuffer(0, gridBuffer, VertexPositionColor.SizeInBytes);
             deviceContext.VSSetShader(vertexShaderPositionColor);
+            deviceContext.VSSetConstantBuffer(1, this.constantBuffer2);
             deviceContext.PSSetShader(pixelShaderPositionColor);
             deviceContext.Draw(lineVerticesBufferSize * 2, 0);
         }
-            
+
         // draw signal
         if (drawLine)
         {
@@ -434,20 +546,33 @@ internal unsafe class Direct3D11 : IDisposable
             return;
         }
 
+        if (drawGrid || drawLine)
+        {
+            Matrix4x4 view2 = Matrix4x4.CreateLookAt(new Vector3(eyeX, eyeY, eyeZ), new Vector3(atX, atY, atZ), Vector3.UnitY);
+            var AspectRatio2 = (float)leftControl.ClientSize.Width / leftControl.ClientSize.Height;
+            Matrix4x4 projection2 = Matrix4x4.CreatePerspectiveFieldOfView((float)Math.PI / 4, AspectRatio2, 0.1f, 100);
+            Matrix4x4 viewProjection2 = Matrix4x4.Multiply(view2, projection2);
+
+            // Update constant buffer2 data
+            MappedSubresource mappedResource2 = deviceContext.Map(this.constantBuffer2, 0, MapMode.WriteDiscard);
+            Unsafe.Copy(mappedResource2.DataPointer.ToPointer(), ref viewProjection2);
+            deviceContext.Unmap(this.constantBuffer2, 0);
+        }
+
         if (drawCube)
         {
             // update constant buffer for textured cube
             var time = this.clock.ElapsedMilliseconds / 1000.0f;
             Matrix4x4 world = Matrix4x4.CreateRotationX(time) * Matrix4x4.CreateRotationY(time * 2) * Matrix4x4.CreateRotationZ(time * .7f);
 
-            Matrix4x4 view = Matrix4x4.CreateLookAt(new Vector3(0, 0, 25), new Vector3(0, 0, 0), Vector3.UnitY);
+            Matrix4x4 view = Matrix4x4.CreateLookAt(new Vector3(0, 0, 25f), new Vector3(0, 0, 0), Vector3.UnitY);
             var AspectRatio = (float)leftControl.ClientSize.Width / leftControl.ClientSize.Height;
             Matrix4x4 projection = Matrix4x4.CreatePerspectiveFieldOfView((float)Math.PI / 4, AspectRatio, 0.1f, 100);
             Matrix4x4 viewProjection = Matrix4x4.Multiply(view, projection);
             Matrix4x4 worldViewProjection = Matrix4x4.Multiply(world, viewProjection);
 
             // Update constant buffer data
-            MappedSubresource mappedResource = deviceContext.Map(this.constantBuffer, MapMode.WriteDiscard);
+            MappedSubresource mappedResource = deviceContext.Map(this.constantBuffer, 0, MapMode.WriteDiscard);
             Unsafe.Copy(mappedResource.DataPointer.ToPointer(), ref worldViewProjection);
             deviceContext.Unmap(this.constantBuffer, 0);
         }

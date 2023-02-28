@@ -30,6 +30,8 @@ public partial class MainWindow : Form
         InitializeAdditionalControls();
         InitializeDirect3D();
         InitializeTimer();
+
+        this.propertyGrid.SelectedObject = this.direct3D;
     }
 
     ~MainWindow()

@@ -28,14 +28,23 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.propertyGrid = new System.Windows.Forms.PropertyGrid();
             this.SuspendLayout();
+            // 
+            // propertyGrid
+            // 
+            this.propertyGrid.Dock = System.Windows.Forms.DockStyle.Right;
+            this.propertyGrid.Location = new System.Drawing.Point(1226, 0);
+            this.propertyGrid.Name = "propertyGrid";
+            this.propertyGrid.Size = new System.Drawing.Size(241, 881);
+            this.propertyGrid.TabIndex = 0;
             // 
             // MainWindow
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1284, 661);
-            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.ClientSize = new System.Drawing.Size(1467, 881);
+            this.Controls.Add(this.propertyGrid);
             this.Name = "MainWindow";
             this.Text = "Direct3D11 Examples";
             this.ResumeLayout(false);
@@ -43,5 +52,7 @@
         }
 
         #endregion
+
+        private PropertyGrid propertyGrid;
     }
 }

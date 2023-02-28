@@ -10,9 +10,13 @@ struct PSInput
     float4 Color : COLOR; // interpolated diffuse color
 };
 
+cbuffer params : register(b1) {
+    float4x4 viewProjection2;
+};
+
 PSInput VSMain(VSInput input) { // VSMain is the default function name (can be also named main or somethin else...)
     PSInput result;
-    result.Position = input.Position;
+    result.Position = mul(viewProjection2, input.Position);
     result.Color = input.Color;
     return result;
 }
