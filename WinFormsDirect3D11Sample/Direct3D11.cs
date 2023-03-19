@@ -705,8 +705,6 @@ internal unsafe class Direct3D11 : IDisposable
 
     public void Dispose()
     {
-        this.debugInterface.Dispose();
-
         this.device.Dispose();
         this.deviceContext.Dispose();
         this.swapChain.Dispose();
@@ -731,6 +729,8 @@ internal unsafe class Direct3D11 : IDisposable
 #if DEBUG
         // use to report live object which need to be disposed!
         this.debugInterface.ReportLiveDeviceObjects(ReportLiveDeviceObjectFlags.Summary);
+        this.debugInterface.Dispose();
+        MainWindow.infoManager?.PrintMessages();
 #endif
     }
 

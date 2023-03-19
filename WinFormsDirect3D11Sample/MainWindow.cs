@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Timer = System.Windows.Forms.Timer;
 
 namespace WinFormsDirect3D11Sample;
@@ -12,7 +13,6 @@ public partial class MainWindow : Form
     private Control? leftControl;
     private Control? rightControl;
     private Direct3D11? direct3D;
-    private DxgiInfoManager? infoManager;
 
     private const int LabelWidth = 300;
     private const int LabelHeight = 20;
@@ -20,6 +20,10 @@ public partial class MainWindow : Form
 
     private const int ButtonWidth = 200;
     private const int ButtonHeight = 30;
+
+#if DEBUG
+    public static DxgiInfoManager? infoManager = new DxgiInfoManager();
+#endif
 
     #endregion
 
@@ -156,17 +160,14 @@ public partial class MainWindow : Form
     {
         try
         {
-#if DEBUG
-            this.infoManager = new DxgiInfoManager();
-#endif
             direct3D = new Direct3D11(this, leftControl, rightControl);
             direct3D.OnInit();
         }
         finally
         {
 #if DEBUG
-            this.infoManager?.PrintMessages();
-            this.infoManager?.Set();
+            infoManager?.PrintMessages();
+            infoManager?.Set();
 #endif
         }
         
@@ -186,8 +187,8 @@ public partial class MainWindow : Form
         direct3D?.OnRender();
 
 #if DEBUG
-        this.infoManager?.PrintMessages();
-        this.infoManager?.Set();
+        infoManager?.PrintMessages();
+        infoManager?.Set();
 #endif
     }
 
@@ -196,6 +197,12 @@ public partial class MainWindow : Form
         if (labelDevice != null) labelDevice.Text += device;
         if (labelFeatureLevel != null) labelFeatureLevel.Text += featureLevel;
         if (labelResolution != null) labelResolution.Text += resolution;
+    }
+
+    protected override void OnClosing(CancelEventArgs e)
+    {
+        base.OnClosing(e);
+        direct3D?.Dispose();
     }
 
     #endregion
