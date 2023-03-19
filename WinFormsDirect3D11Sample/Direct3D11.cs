@@ -1,5 +1,6 @@
 ﻿#nullable disable
 
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -84,7 +85,7 @@ internal unsafe class Direct3D11 : IDisposable
     private float atY;
     private float atZ;
     private float upX;
-    private float upY = -1;
+    private float upY = 1;
     private float upZ;
 
     private bool drawGrid;
@@ -120,6 +121,8 @@ internal unsafe class Direct3D11 : IDisposable
 
     #region Properties
 
+    [Category("Camera (Eye)")]
+    [DisplayName("x")]
     public float EyeX
     {
         get => this.eyeX;
@@ -131,6 +134,8 @@ internal unsafe class Direct3D11 : IDisposable
         }
     }
 
+    [Category("Camera (Eye)")]
+    [DisplayName("y")]
     public float EyeY
     {
         get => this.eyeY;
@@ -142,6 +147,8 @@ internal unsafe class Direct3D11 : IDisposable
         }
     }
 
+    [Category("Camera (Eye)")]
+    [DisplayName("z")]
     public float EyeZ
     {
         get => this.eyeZ;
@@ -153,6 +160,8 @@ internal unsafe class Direct3D11 : IDisposable
         }
     }
 
+    [Category("Camera (At)")]
+    [DisplayName("x")]
     public float AtX
     {
         get => this.atX;
@@ -164,6 +173,8 @@ internal unsafe class Direct3D11 : IDisposable
         }
     }
 
+    [Category("Camera (At)")]
+    [DisplayName("y")]
     public float AtY
     {
         get => this.atY;
@@ -175,6 +186,8 @@ internal unsafe class Direct3D11 : IDisposable
         }
     }
 
+    [Category("Camera (At)")]
+    [DisplayName("z")]
     public float AtZ
     {
         get => this.atZ;
@@ -186,6 +199,8 @@ internal unsafe class Direct3D11 : IDisposable
         }
     }
 
+    [Category("Camera (Up)")]
+    [DisplayName("x")]
     public float UpX
     {
         get => this.upX;
@@ -197,6 +212,8 @@ internal unsafe class Direct3D11 : IDisposable
         }
     }
 
+    [Category("Camera (Up)")]
+    [DisplayName("y")]
     public float UpY
     {
         get => this.upY;
@@ -208,6 +225,8 @@ internal unsafe class Direct3D11 : IDisposable
         }
     }
 
+    [Category("Camera (Up)")]
+    [DisplayName("z")]
     public float UpZ
     {
         get => this.upZ;
@@ -300,10 +319,10 @@ internal unsafe class Direct3D11 : IDisposable
             Width = rightControl.ClientSize.Width,
             Height = rightControl.ClientSize.Height,
             Format = Format.R8G8B8A8_UNorm,
-            BufferCount = 1,
+            BufferCount = 2,
             BufferUsage = Usage.RenderTargetOutput,
             SampleDescription = SampleDescription.Default,
-            SwapEffect = SwapEffect.Discard
+            SwapEffect = SwapEffect.FlipDiscard
         };
 
         SwapChainFullscreenDescription fullscreenDescription = new() { Windowed = true };
@@ -560,7 +579,7 @@ internal unsafe class Direct3D11 : IDisposable
 
         if (drawGrid || drawLine)
         {
-            Matrix4x4 view2 = Matrix4x4.CreateLookAt(new Vector3(eyeX, eyeY, eyeZ), new Vector3(atX, atY, atZ), Vector3.UnitY);
+            Matrix4x4 view2 = Matrix4x4.CreateLookAt(new Vector3(eyeX, eyeY, eyeZ), new Vector3(atX, atY, atZ), new Vector3(upX, upY, upZ));
             var AspectRatio2 = (float)leftControl.ClientSize.Width / leftControl.ClientSize.Height;
             Matrix4x4 projection2 = Matrix4x4.CreatePerspectiveFieldOfView((float)Math.PI / 4, AspectRatio2, 0.1f, 100);
             Matrix4x4 viewProjection2 = Matrix4x4.Multiply(view2, projection2);
@@ -577,7 +596,7 @@ internal unsafe class Direct3D11 : IDisposable
             var time = this.clock.ElapsedMilliseconds / 1000.0f;
             Matrix4x4 world = Matrix4x4.CreateRotationX(time) * Matrix4x4.CreateRotationY(time * 2) * Matrix4x4.CreateRotationZ(time * .7f);
 
-            Matrix4x4 view = Matrix4x4.CreateLookAt(new Vector3(0, 0, 25f), new Vector3(0, 0, 0), Vector3.UnitY);
+            Matrix4x4 view = Matrix4x4.CreateLookAt(new Vector3(0, 0, 25f), new Vector3(0, 0, 0), new Vector3(upX, upY, upZ));
             var AspectRatio = (float)leftControl.ClientSize.Width / leftControl.ClientSize.Height;
             Matrix4x4 projection = Matrix4x4.CreatePerspectiveFieldOfView((float)Math.PI / 4, AspectRatio, 0.1f, 100);
             Matrix4x4 viewProjection = Matrix4x4.Multiply(view, projection);
