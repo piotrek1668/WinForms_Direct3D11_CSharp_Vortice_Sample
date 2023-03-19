@@ -281,7 +281,9 @@ internal unsafe class Direct3D11 : IDisposable
 
         this.textureManager = new TextureManager(device);
 
+#if DEBUG
         debugInterface = device.QueryInterface<ID3D11Debug>();
+#endif
 
         SwapChainDescription1 swapChainDescription = new()
         {
@@ -404,9 +406,6 @@ internal unsafe class Direct3D11 : IDisposable
         this.textureSampler = device.CreateSamplerState(SamplerDescription.PointWrap);
 
         this.clock = Stopwatch.StartNew();
-
-        // use to report live object which need to be disposed!
-        this.debugInterface.ReportLiveDeviceObjects(ReportLiveDeviceObjectFlags.Summary);
     }
 
     internal void OnRender()
@@ -712,6 +711,11 @@ internal unsafe class Direct3D11 : IDisposable
         this.pixelShaderPositionTexture.Dispose();
         this.vertexShaderPositionColor.Dispose();
         this.vertexShaderPositionTexture.Dispose();
+
+#if DEBUG
+        // use to report live object which need to be disposed!
+        this.debugInterface.ReportLiveDeviceObjects(ReportLiveDeviceObjectFlags.Summary);
+#endif
     }
 
     #endregion
