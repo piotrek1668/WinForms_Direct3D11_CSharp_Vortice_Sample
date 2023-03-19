@@ -249,12 +249,7 @@ internal unsafe class Direct3D11 : IDisposable
 #endif
 
         using IDXGIAdapter1 adapter = GetHardwareAdapter();
-        if (adapter == null)
-        {
-            return;
-        }
-
-        if (D3D11.D3D11CreateDevice(adapter, DriverType.Unknown, deviceCreationFlags, Direct3D11.FeatureLevels,
+        if (D3D11.D3D11CreateDevice(null, DriverType.Hardware, deviceCreationFlags, Direct3D11.FeatureLevels,
                 out ID3D11Device tempDevice, out FeatureLevel featureLevel, out ID3D11DeviceContext tempContext).Failure)
         {
             // Handle device interface creation failure if it occurs.
@@ -265,13 +260,17 @@ internal unsafe class Direct3D11 : IDisposable
         }
 
         string resolution = "<not available>";
-        if (adapter.EnumOutputs(0, out IDXGIOutput output).Success)
+        if (adapter != null && adapter.EnumOutputs(0, out IDXGIOutput output).Success)
         {
             resolution = $"{output.Description.DesktopCoordinates.Right} x {output.Description.DesktopCoordinates.Bottom}";
         }
 
         highestSupportedFeatureLevel = featureLevel;
-        this.mainWindow.UpdateLabels(adapter.Description1.Description, highestSupportedFeatureLevel.ToString(), resolution);
+        if (adapter != null)
+        {
+            this.mainWindow.UpdateLabels(adapter.Description1.Description, highestSupportedFeatureLevel.ToString(), resolution);
+        }
+
         device = tempDevice.QueryInterface<ID3D11Device1>();
         deviceContext = tempContext.QueryInterface<ID3D11DeviceContext1>();
         tempContext.Dispose();
