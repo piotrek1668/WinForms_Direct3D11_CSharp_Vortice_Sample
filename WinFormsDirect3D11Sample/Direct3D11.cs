@@ -38,7 +38,6 @@ internal unsafe class Direct3D11 : IDisposable
     private ID3D11DepthStencilView depthStencilView;
     private ID3D11DepthStencilView depthStencilView2;
     private FeatureLevel highestSupportedFeatureLevel;
-    private readonly bool debug;
 
     private ID3D11VertexShader vertexShaderPositionColor;
     private ID3D11VertexShader vertexShaderPositionTexture;
@@ -115,9 +114,6 @@ internal unsafe class Direct3D11 : IDisposable
         this.mainWindow = form;
         this.leftControl = control;
         this.rightControl = control2D;
-#if DEBUG
-        debug = true;
-#endif
     }
 
     #endregion
@@ -245,10 +241,12 @@ internal unsafe class Direct3D11 : IDisposable
         // This flag adds support for surfaces with a color-channel ordering different
         // from the API default. It is required for compatibility with Direct2D.
         var deviceCreationFlags = DeviceCreationFlags.BgraSupport;
-        if (debug && D3D11.SdkLayersAvailable())
+#if DEBUG
+        if (D3D11.SdkLayersAvailable())
         {
             deviceCreationFlags |= DeviceCreationFlags.Debug;
         }
+#endif
 
         using IDXGIAdapter1 adapter = GetHardwareAdapter();
         if (adapter == null)
