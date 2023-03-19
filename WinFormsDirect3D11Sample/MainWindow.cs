@@ -12,6 +12,7 @@ public partial class MainWindow : Form
     private Control? leftControl;
     private Control? rightControl;
     private Direct3D11? direct3D;
+    private DxgiInfoManager? infoManager;
 
     private const int LabelWidth = 300;
     private const int LabelHeight = 20;
@@ -153,8 +154,22 @@ public partial class MainWindow : Form
 
     private void InitializeDirect3D()
     {
-        direct3D = new Direct3D11(this, leftControl, rightControl);
-        direct3D.OnInit();
+        try
+        {
+#if DEBUG
+            this.infoManager = new DxgiInfoManager();
+#endif
+            direct3D = new Direct3D11(this, leftControl, rightControl);
+            direct3D.OnInit();
+        }
+        finally
+        {
+#if DEBUG
+            this.infoManager?.PrintMessages();
+            this.infoManager?.Set();
+#endif
+        }
+        
     }
 
     private void InitializeTimer()
@@ -169,6 +184,11 @@ public partial class MainWindow : Form
     {
         direct3D?.OnUpdate();
         direct3D?.OnRender();
+
+#if DEBUG
+        this.infoManager?.PrintMessages();
+        this.infoManager?.Set();
+#endif
     }
 
     public void UpdateLabels(string device, string featureLevel, string resolution)

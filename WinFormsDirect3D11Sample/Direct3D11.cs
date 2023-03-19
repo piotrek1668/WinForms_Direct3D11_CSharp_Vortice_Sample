@@ -95,7 +95,6 @@ internal unsafe class Direct3D11 : IDisposable
 
     // list of featureLevels this app can support
     private static readonly FeatureLevel[] FeatureLevels = {
-        FeatureLevel.Level_12_2,
         FeatureLevel.Level_12_1,
         FeatureLevel.Level_12_0,
         FeatureLevel.Level_11_1,
