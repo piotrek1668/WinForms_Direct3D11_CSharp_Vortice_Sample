@@ -448,7 +448,6 @@ internal unsafe class Direct3D11 : IDisposable
         if (drawText)
         {
             renderTarget2DRight.BeginDraw();
-            renderTarget2DRight.Transform = Matrix3x2.Identity; // TODO: Rotation/Translation/etc. possible
             renderTarget2DRight.Clear(Colors.CornflowerBlue);
             var blackBrush = renderTarget2DRight.CreateSolidColorBrush(Colors.YellowGreen);
             var height = rightControl.Height / 5;
@@ -515,7 +514,6 @@ internal unsafe class Direct3D11 : IDisposable
         if (drawText)
         {
             renderTarget2DLeft.BeginDraw();
-            renderTarget2DLeft.Transform = Matrix3x2.Identity; // Rotation/Translation/etc. possible
             renderTarget2DLeft.Clear(Colors.CornflowerBlue);
             var blackBrush = renderTarget2DLeft.CreateSolidColorBrush(Colors.Orange);
             var height = leftControl.Height / 5;
@@ -730,7 +728,7 @@ internal unsafe class Direct3D11 : IDisposable
         // use to report live object which need to be disposed!
         this.debugInterface.ReportLiveDeviceObjects(ReportLiveDeviceObjectFlags.Summary);
         this.debugInterface.Dispose();
-        MainWindow.infoManager?.PrintMessages();
+        MainWindow.InfoManager?.PrintMessages();
 #endif
     }
 

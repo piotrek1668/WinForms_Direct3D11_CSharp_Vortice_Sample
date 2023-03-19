@@ -21,10 +21,6 @@ public partial class MainWindow : Form
     private const int ButtonWidth = 200;
     private const int ButtonHeight = 30;
 
-#if DEBUG
-    public static DxgiInfoManager? infoManager = new DxgiInfoManager();
-#endif
-
     #endregion
 
     #region Constructors and Deconstructors
@@ -43,6 +39,14 @@ public partial class MainWindow : Form
     {
         direct3D?.Dispose();
     }
+
+    #endregion
+
+    #region Properties
+
+#if DEBUG
+    public static DxgiInfoManager? InfoManager => new DxgiInfoManager();
+#endif
 
     #endregion
 
@@ -166,8 +170,8 @@ public partial class MainWindow : Form
         finally
         {
 #if DEBUG
-            infoManager?.PrintMessages();
-            infoManager?.Set();
+            InfoManager?.PrintMessages();
+            InfoManager?.Set();
 #endif
         }
         
@@ -187,8 +191,8 @@ public partial class MainWindow : Form
         direct3D?.OnRender();
 
 #if DEBUG
-        infoManager?.PrintMessages();
-        infoManager?.Set();
+        InfoManager?.PrintMessages();
+        InfoManager?.Set();
 #endif
     }
 
