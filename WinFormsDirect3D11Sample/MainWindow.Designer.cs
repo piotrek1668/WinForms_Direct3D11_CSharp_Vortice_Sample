@@ -28,27 +28,28 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.propertyGrid = new System.Windows.Forms.PropertyGrid();
-            this.SuspendLayout();
+            propertyGrid = new PropertyGrid();
+            SuspendLayout();
             // 
             // propertyGrid
             // 
-            this.propertyGrid.Dock = System.Windows.Forms.DockStyle.Right;
-            this.propertyGrid.Location = new System.Drawing.Point(1226, 0);
-            this.propertyGrid.Name = "propertyGrid";
-            this.propertyGrid.Size = new System.Drawing.Size(241, 881);
-            this.propertyGrid.TabIndex = 0;
+            propertyGrid.Dock = DockStyle.Right;
+            propertyGrid.Location = new Point(1223, 0);
+            propertyGrid.Margin = new Padding(3, 2, 3, 2);
+            propertyGrid.Name = "propertyGrid";
+            propertyGrid.Size = new Size(211, 661);
+            propertyGrid.TabIndex = 0;
             // 
             // MainWindow
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1467, 881);
-            this.Controls.Add(this.propertyGrid);
-            this.Name = "MainWindow";
-            this.Text = "Direct3D11 Examples";
-            this.ResumeLayout(false);
-
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(1434, 661);
+            Controls.Add(propertyGrid);
+            Margin = new Padding(3, 2, 3, 2);
+            Name = "MainWindow";
+            Text = "Direct3D11 Examples";
+            ResumeLayout(false);
         }
 
         #endregion

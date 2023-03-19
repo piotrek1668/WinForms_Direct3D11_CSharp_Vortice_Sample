@@ -99,7 +99,8 @@ public partial class MainWindow : Form
         drawText.Click += Button_Click;
         drawAll.Click += Button_Click;
 
-        var labelInformation = new Label {
+        var labelInformation = new Label
+        {
             Text = @"Device informations:",
             Size = new Size(LabelWidth, LabelHeight),
             Location = new Point(10, drawTriangleButton.Top + drawTriangleButton.Height + Offset)
