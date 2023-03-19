@@ -14,7 +14,7 @@ Examples shown in tool:
 
 ---
 
-![image](https://user-images.githubusercontent.com/4056411/173185109-75b205bd-ecc7-4db0-90cf-efe47b980846.png)
+![image](https://user-images.githubusercontent.com/4056411/226169421-81fdd65d-ae5e-401c-aff6-8972241a5058.png)
 
 ---
 
