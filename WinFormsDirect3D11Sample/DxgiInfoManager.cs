@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Vortice.Direct3D11;
 using Vortice.DXGI;
 using Vortice.DXGI.Debug;
 
@@ -7,14 +8,17 @@ namespace WinFormsDirect3D11Sample
     public class DxgiInfoManager
     {
         private ulong next;
-        private IDXGIInfoQueue infoQueue;
+        private IDXGIInfoQueue? infoQueue;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DxgiInfoManager"/> class.
         /// </summary>
         public DxgiInfoManager()
         {
-            this.infoQueue = DXGI.DXGIGetDebugInterface1<IDXGIInfoQueue>();
+            if (D3D11.SdkLayersAvailable())
+            {
+                this.infoQueue = DXGI.DXGIGetDebugInterface1<IDXGIInfoQueue>();
+            }
         }
 
         /// <inheritdoc/>
@@ -29,6 +33,8 @@ namespace WinFormsDirect3D11Sample
         /// <returns>Returns a list with messages.</returns>
         public void PrintMessages()
         {
+            if (this.infoQueue == null) return;
+
             var end = this.infoQueue.GetNumStoredMessages(DXGI.DebugAll);
 
             if ((end > 0) && (this.next < end))
@@ -49,6 +55,7 @@ namespace WinFormsDirect3D11Sample
         /// </summary>
         public void Set()
         {
+            if (this.infoQueue == null) return;
             this.next = this.infoQueue.GetNumStoredMessages(DXGI.DebugAll);
         }
     }

@@ -298,7 +298,10 @@ internal unsafe class Direct3D11 : IDisposable
         this.textureManager = new TextureManager(device);
 
 #if DEBUG
-        debugInterface = device.QueryInterface<ID3D11Debug>();
+        if (D3D11.SdkLayersAvailable())
+        {
+            debugInterface = device.QueryInterface<ID3D11Debug>();
+        }
 #endif
 
         SwapChainDescription1 swapChainDescription = new()
@@ -726,8 +729,8 @@ internal unsafe class Direct3D11 : IDisposable
 
 #if DEBUG
         // use to report live object which need to be disposed!
-        this.debugInterface.ReportLiveDeviceObjects(ReportLiveDeviceObjectFlags.Summary);
-        this.debugInterface.Dispose();
+        this.debugInterface?.ReportLiveDeviceObjects(ReportLiveDeviceObjectFlags.Summary);
+        this.debugInterface?.Dispose();
         MainWindow.InfoManager?.PrintMessages();
 #endif
     }
