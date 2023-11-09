@@ -405,7 +405,7 @@ internal unsafe class Direct3D11 : IDisposable
             new Color(0xFFFFFFFF),
         };
 
-        var texture2D = device.CreateTexture2D(Format.R8G8B8A8_UNorm, 4, 4, pixels);
+        var texture2D = device.CreateTexture2D(pixels, Format.R8G8B8A8_UNorm, 4, 4);
         shaderResourceView = device.CreateShaderResourceView(texture2D);
         samplerState = device.CreateSamplerState(SamplerDescription.PointWrap);
 

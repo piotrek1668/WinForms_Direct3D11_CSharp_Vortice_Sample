@@ -159,7 +159,7 @@ namespace WinFormsDirect3D11Sample
                 converter.CopyPixels(rowPitch, pixels);
             }
 
-            return device.CreateTexture2D(format, size.Width, size.Height, pixels);
+            return device.CreateTexture2D(pixels, format, size.Width, size.Height);
         }
 
         private static readonly Dictionary<Guid, Guid> s_WICConvert = new()
