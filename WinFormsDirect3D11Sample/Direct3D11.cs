@@ -454,7 +454,7 @@ internal unsafe class Direct3D11 : IDisposable
             renderTarget2DRight.Clear(Colors.CornflowerBlue);
             var blackBrush = renderTarget2DRight.CreateSolidColorBrush(Colors.YellowGreen);
             var height = rightControl.Height / 5;
-            var layoutRect = new Rectangle(0, height * 4, rightControl.Width, height);
+            var layoutRect = new Rect(0, height * 4, rightControl.Width, height);
             renderTarget2DRight.DrawText(Direct3D11.Text, textFormat, layoutRect, blackBrush);
             renderTarget2DRight.EndDraw();
         }
@@ -520,7 +520,7 @@ internal unsafe class Direct3D11 : IDisposable
             renderTarget2DLeft.Clear(Colors.CornflowerBlue);
             var blackBrush = renderTarget2DLeft.CreateSolidColorBrush(Colors.Orange);
             var height = leftControl.Height / 5;
-            var layoutRect = new Rectangle(0, height * 4, leftControl.Width, height);
+            var layoutRect = new Rect(0, height * 4, leftControl.Width, height);
             renderTarget2DLeft.DrawText(Direct3D11.Text, textFormat, layoutRect, blackBrush);
             renderTarget2DLeft.EndDraw();
         }
