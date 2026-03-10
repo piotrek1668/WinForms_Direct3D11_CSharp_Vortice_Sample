@@ -366,12 +366,12 @@ internal unsafe class Direct3D11 : IDisposable
         depthStencilView2 = device.CreateDepthStencilView(depthStencilTexture2!, new DepthStencilViewDescription(depthStencilTexture, DepthStencilViewDimension.Texture2D));
 
         signalVerticesBufferSize = 10;
-        MeshData signal = MeshUtilities.CreateSignal();
-        signalBuffer = device.CreateBuffer(signal.VerticesColor, BindFlags.VertexBuffer);
+        var signal = MeshUtilities.CreateSignal();
+        signalBuffer = device.CreateBuffer(signal.Vertices, BindFlags.VertexBuffer);
 
         lineVerticesBufferSize = 90;
-        MeshData grid = MeshUtilities.CreateGrid();
-        gridBuffer = device.CreateBuffer(grid.VerticesColor, BindFlags.VertexBuffer);
+        var grid = MeshUtilities.CreateGrid();
+        gridBuffer = device.CreateBuffer(grid.Vertices, BindFlags.VertexBuffer);
 
         Span<byte> vertexShaderByteCodePositionColor = CompileBytecode("PositionColor.hlsl", "VSMain", "vs_4_0");
         Span<byte> pixelShaderByteCodePositionColor = CompileBytecode("PositionColor.hlsl", "PSMain", "ps_4_0");
@@ -380,7 +380,7 @@ internal unsafe class Direct3D11 : IDisposable
         pixelShaderPositionColor = device.CreatePixelShader(pixelShaderByteCodePositionColor);
         inputLayoutPositionColor = device.CreateInputLayout(VertexPositionColor.InputElements, vertexShaderByteCodePositionColor);
 
-        MeshData mesh = MeshUtilities.CreateCube(3.0f);
+        var mesh = MeshUtilities.CreateCube(3.0f);
         this.vertexBuffer = device.CreateBuffer(mesh.Vertices, BindFlags.VertexBuffer);
         this.indexBuffer = device.CreateBuffer(mesh.Indices, BindFlags.IndexBuffer);
         this.constantBuffer = device.CreateConstantBuffer<Matrix4x4>();
@@ -416,7 +416,7 @@ internal unsafe class Direct3D11 : IDisposable
         pixelShaderPositionTexture = device.CreatePixelShader(pixelShaderByteCodeCube);
         inputLayoutPositionTexture = device.CreateInputLayout(VertexPositionNormalTexture.InputElements, vertexShaderByteCodeCube);
 
-        MeshData mesh2 = MeshUtilities.CreateCube(8.0f);
+        var mesh2 = MeshUtilities.CreateCube(8.0f);
         this.vertexBuffer2 = device.CreateBuffer(mesh2.Vertices, BindFlags.VertexBuffer);
         this.indexBuffer2 = device.CreateBuffer(mesh2.Indices, BindFlags.IndexBuffer);
 
