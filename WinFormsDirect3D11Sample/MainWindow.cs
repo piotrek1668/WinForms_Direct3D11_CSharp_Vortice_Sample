@@ -1,4 +1,6 @@
 using System.ComponentModel;
+using Vortice.DXGI;
+using Vortice.DXGI.Debug;
 using Timer = System.Windows.Forms.Timer;
 
 namespace WinFormsDirect3D11Sample;
@@ -45,7 +47,7 @@ public partial class MainWindow : Form
     #region Properties
 
 #if DEBUG
-    public static DxgiInfoManager? InfoManager => new DxgiInfoManager();
+    public static DxgiInfoManager? InfoManager => new(DXGI.DXGIGetDebugInterface1<IDXGIInfoQueue>());
 #endif
 
     #endregion

@@ -5,26 +5,46 @@ using Vortice.DXGI.Debug;
 
 namespace WinFormsDirect3D11Sample;
 
-public class DxgiInfoManager
+public class DxgiInfoManager : IDisposable
 {
     private ulong next;
     private IDXGIInfoQueue? infoQueue;
+    private bool disposed;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DxgiInfoManager"/> class.
     /// </summary>
-    public DxgiInfoManager()
+    public DxgiInfoManager(IDXGIInfoQueue? infoQueue)
     {
-        if (D3D11.SdkLayersAvailable())
+        if (infoQueue != null && D3D11.SdkLayersAvailable())
         {
-            this.infoQueue = DXGI.DXGIGetDebugInterface1<IDXGIInfoQueue>();
+            this.infoQueue = infoQueue;
+        }
+        else
+        {
+            this.infoQueue = null;
         }
     }
 
     /// <inheritdoc/>
     public void Dispose()
     {
-        this.infoQueue?.Release();
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposed)
+        {
+            if (disposing)
+            {
+                this.infoQueue?.Dispose();
+                this.infoQueue = null;
+            }
+
+            disposed = true;
+        }
     }
 
     /// <summary>
