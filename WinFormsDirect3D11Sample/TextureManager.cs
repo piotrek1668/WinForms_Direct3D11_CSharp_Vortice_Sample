@@ -49,7 +49,7 @@ public class TextureManager
 
                         format = PixelFormat.ToDXGIFormat(item.Value);
                         Debug.Assert(format != Format.Unknown);
-                        bpp = PixelFormat.WICBitsPerPixel(wicFactory, convertGuid);
+                        bpp = (int)PixelFormat.WICBitsPerPixel(wicFactory, convertGuid);
                         break;
                     }
                 }
@@ -69,7 +69,7 @@ public class TextureManager
                 convertGuid = PixelFormat.Format32bppRGBA;
             }
 
-            bpp = PixelFormat.WICBitsPerPixel(wicFactory, pixelFormat);
+            bpp = (int)PixelFormat.WICBitsPerPixel(wicFactory, pixelFormat);
         }
 
         if (format == Format.R32G32B32_Float)
@@ -115,20 +115,20 @@ public class TextureManager
         if (convertGuid == pixelFormat && size.Width == width && size.Height == height)
         {
             // No format conversion or resize needed
-            frame.CopyPixels(rowPitch, pixels);
+            frame.CopyPixels((uint)rowPitch, pixels);
         }
         else if (size.Width != width || size.Height != height)
         {
             // Resize
             using IWICBitmapScaler scaler = wicFactory.CreateBitmapScaler();
-            scaler.Initialize(frame, width, height, BitmapInterpolationMode.Fant);
+            scaler.Initialize(frame, (uint)width, (uint)height, BitmapInterpolationMode.Fant);
 
             Guid pixelFormatScaler = scaler.PixelFormat;
 
             if (convertGuid == pixelFormatScaler)
             {
                 // No format conversion needed
-                scaler.CopyPixels(rowPitch, pixels);
+                scaler.CopyPixels((uint)rowPitch, pixels);
             }
             else
             {
@@ -141,7 +141,7 @@ public class TextureManager
                 }
 
                 converter.Initialize(scaler, convertGuid, BitmapDitherType.ErrorDiffusion, null, 0, BitmapPaletteType.MedianCut);
-                converter.CopyPixels(rowPitch, pixels);
+                converter.CopyPixels((uint)rowPitch, pixels);
             }
         }
         else
@@ -156,10 +156,10 @@ public class TextureManager
             }
 
             converter.Initialize(frame, convertGuid, BitmapDitherType.ErrorDiffusion, null, 0, BitmapPaletteType.MedianCut);
-            converter.CopyPixels(rowPitch, pixels);
+            converter.CopyPixels((uint)rowPitch, pixels);
         }
 
-        return device.CreateTexture2D(pixels, format, size.Width, size.Height);
+        return device.CreateTexture2D(pixels, format, (uint)size.Width, (uint)size.Height);
     }
 
     private static readonly Dictionary<Guid, Guid> SWicConvert = new()

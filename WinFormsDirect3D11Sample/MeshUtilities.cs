@@ -33,7 +33,7 @@ public static class MeshUtilities
         return MeshUtilities.CreateBox(new Vector3(size));
     }
 
-    private static MeshData CreateBox(in Vector3 size)
+    private static MeshData CreateBox(Vector3 size)
     {
         List<VertexPositionNormalTexture> vertices = new List<VertexPositionNormalTexture>();
         List<ushort> indices = new List<ushort>();

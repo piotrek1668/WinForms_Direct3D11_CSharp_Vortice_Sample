@@ -16,7 +16,7 @@ public readonly struct VertexPositionTexture
         new("TEXCOORD", 0, Format.R32G32_Float, 12, 0)
     };
 
-    public VertexPositionTexture(in Vector3 position, in Vector2 textCoord)
+    public VertexPositionTexture(Vector3 position, Vector2 textCoord)
     {
         Position = position;
         TexCoord = textCoord;

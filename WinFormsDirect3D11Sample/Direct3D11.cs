@@ -306,8 +306,8 @@ internal unsafe class Direct3D11 : IDisposable
 
         SwapChainDescription1 swapChainDescription = new()
         {
-            Width = leftControl.ClientSize.Width,
-            Height = leftControl.ClientSize.Height,
+            Width = (uint)leftControl.ClientSize.Width,
+            Height = (uint)leftControl.ClientSize.Height,
             Format = Format.R8G8B8A8_UNorm,
             BufferCount = 2,
             BufferUsage = Usage.RenderTargetOutput,
@@ -319,8 +319,8 @@ internal unsafe class Direct3D11 : IDisposable
 
         SwapChainDescription1 swapChainDescription2 = new()
         {
-            Width = rightControl.ClientSize.Width,
-            Height = rightControl.ClientSize.Height,
+            Width = (uint)rightControl.ClientSize.Width,
+            Height = (uint)rightControl.ClientSize.Height,
             Format = Format.R8G8B8A8_UNorm,
             BufferCount = 2,
             BufferUsage = Usage.RenderTargetOutput,
@@ -359,10 +359,10 @@ internal unsafe class Direct3D11 : IDisposable
         var backBuffer = swapChain2.GetBuffer<IDXGISurface>(0);
         renderTarget2DRight = direct2DFactory.CreateDxgiSurfaceRenderTarget(backBuffer, renderTargetProperties);
 
-        depthStencilTexture = device.CreateTexture2D(Format.D32_Float, leftControl.Width, leftControl.Height, 1, 1, null, BindFlags.DepthStencil);
+        depthStencilTexture = device.CreateTexture2D(Format.D32_Float, (uint)leftControl.Width, (uint)leftControl.Height, 1, 1, null, BindFlags.DepthStencil);
         depthStencilView = device.CreateDepthStencilView(depthStencilTexture!, new DepthStencilViewDescription(depthStencilTexture, DepthStencilViewDimension.Texture2D));
 
-        depthStencilTexture2 = device.CreateTexture2D(Format.D32_Float, rightControl.Width, rightControl.Height, 1, 1, null, BindFlags.DepthStencil);
+        depthStencilTexture2 = device.CreateTexture2D(Format.D32_Float, (uint)rightControl.Width, (uint)rightControl.Height, 1, 1, null, BindFlags.DepthStencil);
         depthStencilView2 = device.CreateDepthStencilView(depthStencilTexture2!, new DepthStencilViewDescription(depthStencilTexture, DepthStencilViewDimension.Texture2D));
 
         signalVerticesBufferSize = 10;
@@ -464,11 +464,11 @@ internal unsafe class Direct3D11 : IDisposable
         {
             deviceContext.IASetPrimitiveTopology(PrimitiveTopology.LineList);
             deviceContext.IASetInputLayout(inputLayoutPositionColor);
-            deviceContext.IASetVertexBuffer(0, gridBuffer, VertexPositionColor.SizeInBytes);
+            deviceContext.IASetVertexBuffer(0, gridBuffer, (uint)VertexPositionColor.SizeInBytes);
             deviceContext.VSSetShader(vertexShaderPositionColor);
             deviceContext.VSSetConstantBuffer(1, this.constantBuffer2);
             deviceContext.PSSetShader(pixelShaderPositionColor);
-            deviceContext.Draw(lineVerticesBufferSize * 2, 0);
+            deviceContext.Draw((uint)(lineVerticesBufferSize * 2), 0);
         }
 
         // draw signal
@@ -476,10 +476,10 @@ internal unsafe class Direct3D11 : IDisposable
         {
             deviceContext.IASetPrimitiveTopology(PrimitiveTopology.LineStrip);
             deviceContext.IASetInputLayout(inputLayoutPositionColor);
-            deviceContext.IASetVertexBuffer(0, signalBuffer, VertexPositionColor.SizeInBytes);
+            deviceContext.IASetVertexBuffer(0, signalBuffer, (uint)VertexPositionColor.SizeInBytes);
             deviceContext.VSSetShader(vertexShaderPositionColor);
             deviceContext.PSSetShader(pixelShaderPositionColor);
-            deviceContext.Draw(signalVerticesBufferSize, 0);
+            deviceContext.Draw((uint)signalVerticesBufferSize, 0);
         }
 
         // draw cube (texture)
@@ -487,7 +487,7 @@ internal unsafe class Direct3D11 : IDisposable
         {
             deviceContext.IASetPrimitiveTopology(PrimitiveTopology.TriangleList);
             deviceContext.IASetInputLayout(inputLayoutPositionTexture);
-            deviceContext.IASetVertexBuffer(0, this.vertexBuffer, VertexPositionNormalTexture.SizeInBytes);
+            deviceContext.IASetVertexBuffer(0, this.vertexBuffer, (uint)VertexPositionNormalTexture.SizeInBytes);
             deviceContext.IASetIndexBuffer(this.indexBuffer, Format.R16_UInt, 0);
             deviceContext.VSSetShader(vertexShaderPositionTexture);
             deviceContext.VSSetConstantBuffer(0, this.constantBuffer);
@@ -530,11 +530,11 @@ internal unsafe class Direct3D11 : IDisposable
         {
             deviceContext.IASetPrimitiveTopology(PrimitiveTopology.LineList);
             deviceContext.IASetInputLayout(inputLayoutPositionColor);
-            deviceContext.IASetVertexBuffer(0, gridBuffer, VertexPositionColor.SizeInBytes);
+            deviceContext.IASetVertexBuffer(0, gridBuffer, (uint)VertexPositionColor.SizeInBytes);
             deviceContext.VSSetShader(vertexShaderPositionColor);
             deviceContext.VSSetConstantBuffer(1, this.constantBuffer2);
             deviceContext.PSSetShader(pixelShaderPositionColor);
-            deviceContext.Draw(lineVerticesBufferSize * 2, 0);
+            deviceContext.Draw((uint)(lineVerticesBufferSize * 2), 0);
         }
 
         // draw signal
@@ -542,10 +542,10 @@ internal unsafe class Direct3D11 : IDisposable
         {
             deviceContext.IASetPrimitiveTopology(PrimitiveTopology.LineStrip);
             deviceContext.IASetInputLayout(inputLayoutPositionColor);
-            deviceContext.IASetVertexBuffer(0, signalBuffer, VertexPositionColor.SizeInBytes);
+            deviceContext.IASetVertexBuffer(0, signalBuffer, (uint)VertexPositionColor.SizeInBytes);
             deviceContext.VSSetShader(vertexShaderPositionColor);
             deviceContext.PSSetShader(pixelShaderPositionColor);
-            deviceContext.Draw(signalVerticesBufferSize, 0);
+            deviceContext.Draw((uint)signalVerticesBufferSize, 0);
         }
 
         // draw cube (texture from file)
@@ -553,7 +553,7 @@ internal unsafe class Direct3D11 : IDisposable
         {
             deviceContext.IASetPrimitiveTopology(PrimitiveTopology.TriangleList);
             deviceContext.IASetInputLayout(inputLayoutPositionTexture);
-            deviceContext.IASetVertexBuffer(0, this.vertexBuffer2, VertexPositionNormalTexture.SizeInBytes);
+            deviceContext.IASetVertexBuffer(0, this.vertexBuffer2, (uint)VertexPositionNormalTexture.SizeInBytes);
             deviceContext.IASetIndexBuffer(this.indexBuffer2, Format.R16_UInt, 0);
             deviceContext.VSSetShader(vertexShaderPositionTexture);
             deviceContext.VSSetConstantBuffer(0, this.constantBuffer);
@@ -660,7 +660,7 @@ internal unsafe class Direct3D11 : IDisposable
         DXGI.CreateDXGIFactory1<IDXGIFactory6>(out var factory6);
         if (factory6 != null)
         {
-            for (int adapterIndex = 0; factory6.EnumAdapterByGpuPreference(adapterIndex, GpuPreference.HighPerformance, out adapter).Success; adapterIndex++)
+            for (int adapterIndex = 0; factory6.EnumAdapterByGpuPreference((uint)adapterIndex, GpuPreference.HighPerformance, out adapter).Success; adapterIndex++)
             {
                 if (adapter == null)
                 {
@@ -683,7 +683,7 @@ internal unsafe class Direct3D11 : IDisposable
 
         if ((adapter == null) && (factory6 != null))
         {
-            for (int adapterIndex = 0; factory6.EnumAdapters1(adapterIndex, out adapter).Success; adapterIndex++)
+            for (int adapterIndex = 0; factory6.EnumAdapters1((uint)adapterIndex, out adapter).Success; adapterIndex++)
             {
                 AdapterDescription1 desc = adapter.Description1;
                 if ((desc.Flags & AdapterFlags.Software) != AdapterFlags.None)

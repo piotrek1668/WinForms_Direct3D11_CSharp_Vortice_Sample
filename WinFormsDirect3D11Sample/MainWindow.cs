@@ -203,6 +203,7 @@ public partial class MainWindow : Form
         if (labelResolution != null) labelResolution.Text += resolution;
     }
 
+    [Obsolete]
     protected override void OnClosing(CancelEventArgs e)
     {
         base.OnClosing(e);
