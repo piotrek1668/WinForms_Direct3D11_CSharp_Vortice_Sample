@@ -17,7 +17,7 @@ public readonly struct VertexPositionNormalTexture
         new("TEXCOORD", 0, Format.R32G32_Float, 24, 0)
     };
 
-    public VertexPositionNormalTexture(in Vector3 position, in Vector3 normal, in Vector2 textureCoordinate)
+    public VertexPositionNormalTexture(Vector3 position, Vector3 normal, Vector2 textureCoordinate)
     {
         Position = position;
         Normal = normal;
