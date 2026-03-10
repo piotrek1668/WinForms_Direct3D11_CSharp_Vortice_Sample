@@ -78,7 +78,15 @@ internal unsafe class Direct3D11 : IDisposable
 
     private TextureManager textureManager;
 
-    private Camera camera;
+    private float eyeX;
+    private float eyeY;
+    private float eyeZ = 2;
+    private float atX;
+    private float atY;
+    private float atZ;
+    private float upX;
+    private float upY = 1;
+    private float upZ;
 
     private bool drawGrid;
     private bool drawLine;
@@ -107,7 +115,127 @@ internal unsafe class Direct3D11 : IDisposable
         this.mainWindow = form;
         this.leftControl = control;
         this.rightControl = control2D;
-        this.camera = new Camera();
+    }
+
+    #endregion
+
+    #region Properties
+
+    [Category("Camera (Eye)")]
+    [DisplayName("x")]
+    public float EyeX
+    {
+        get => this.eyeX;
+        set
+        {
+            this.eyeX = value;
+            this.leftControl.Invalidate();
+            this.rightControl.Invalidate();
+        }
+    }
+
+    [Category("Camera (Eye)")]
+    [DisplayName("y")]
+    public float EyeY
+    {
+        get => this.eyeY;
+        set
+        {
+            this.eyeY = value;
+            this.leftControl.Invalidate();
+            this.rightControl.Invalidate();
+        }
+    }
+
+    [Category("Camera (Eye)")]
+    [DisplayName("z")]
+    public float EyeZ
+    {
+        get => this.eyeZ;
+        set
+        {
+            this.eyeZ = value;
+            this.leftControl.Invalidate();
+            this.rightControl.Invalidate();
+        }
+    }
+
+    [Category("Camera (At)")]
+    [DisplayName("x")]
+    public float AtX
+    {
+        get => this.atX;
+        set
+        {
+            this.atX = value;
+            this.leftControl.Invalidate();
+            this.rightControl.Invalidate();
+        }
+    }
+
+    [Category("Camera (At)")]
+    [DisplayName("y")]
+    public float AtY
+    {
+        get => this.atY;
+        set
+        {
+            this.atY = value;
+            this.leftControl.Invalidate();
+            this.rightControl.Invalidate();
+        }
+    }
+
+    [Category("Camera (At)")]
+    [DisplayName("z")]
+    public float AtZ
+    {
+        get => this.atZ;
+        set
+        {
+            this.atZ = value;
+            this.leftControl.Invalidate();
+            this.rightControl.Invalidate();
+        }
+    }
+
+    [Category("Camera (Up)")]
+    [DisplayName("x")]
+    public float UpX
+    {
+        get => this.upX;
+        set
+        {
+            this.upX = value;
+            this.leftControl.Invalidate();
+            this.rightControl.Invalidate();
+        }
+    }
+
+    [Category("Camera (Up)")]
+    [DisplayName("y")]
+    public float UpY
+    {
+        get => this.upY;
+        set
+        {
+            this.upY = value;
+            this.leftControl.Invalidate();
+            this.rightControl.Invalidate();
+        }
+    }
+
+    [Category("Camera (Up)")]
+    [DisplayName("z")]
+    public float UpZ
+    {
+        get => this.upZ;
+        set
+        {
+            this.upZ = value;
+            this.leftControl.Invalidate();
+            this.rightControl.Invalidate();
+        }
     }
 
     #endregion
@@ -452,10 +580,7 @@ internal unsafe class Direct3D11 : IDisposable
 
         if (drawGrid || drawLine)
         {
-            Matrix4x4 view2 = Matrix4x4.CreateLookAt(
-                new Vector3(this.camera.EyeX, this.camera.EyeY, this.camera.EyeZ),
-                new Vector3(this.camera.AtX, this.camera.AtY, this.camera.AtZ),
-                new Vector3(this.camera.UpX, this.camera.UpY, this.camera.UpZ));
+            Matrix4x4 view2 = Matrix4x4.CreateLookAt(new Vector3(eyeX, eyeY, eyeZ), new Vector3(atX, atY, atZ), new Vector3(upX, upY, upZ));
             var AspectRatio2 = (float)leftControl.ClientSize.Width / leftControl.ClientSize.Height;
             Matrix4x4 projection2 = Matrix4x4.CreatePerspectiveFieldOfView((float)Math.PI / 4, AspectRatio2, 0.1f, 100);
             Matrix4x4 viewProjection2 = Matrix4x4.Multiply(view2, projection2);
@@ -472,7 +597,7 @@ internal unsafe class Direct3D11 : IDisposable
             var time = this.clock.ElapsedMilliseconds / 1000.0f;
             Matrix4x4 world = Matrix4x4.CreateRotationX(time) * Matrix4x4.CreateRotationY(time * 2) * Matrix4x4.CreateRotationZ(time * .7f);
 
-            Matrix4x4 view = Matrix4x4.CreateLookAt(new Vector3(0, 0, 25f), new Vector3(0, 0, 0), new Vector3(this.camera.UpX, this.camera.UpY, this.camera.UpZ));
+            Matrix4x4 view = Matrix4x4.CreateLookAt(new Vector3(0, 0, 25f), new Vector3(0, 0, 0), new Vector3(upX, upY, upZ));
             var AspectRatio = (float)leftControl.ClientSize.Width / leftControl.ClientSize.Height;
             Matrix4x4 projection = Matrix4x4.CreatePerspectiveFieldOfView((float)Math.PI / 4, AspectRatio, 0.1f, 100);
             Matrix4x4 viewProjection = Matrix4x4.Multiply(view, projection);
