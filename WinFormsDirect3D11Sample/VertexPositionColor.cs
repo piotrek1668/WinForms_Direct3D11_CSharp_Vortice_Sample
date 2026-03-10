@@ -8,7 +8,7 @@ using Vortice.Mathematics;
 
 namespace WinFormsDirect3D11Sample;
 
-public readonly struct VertexPositionColor
+public readonly struct VertexPositionColor(Vector3 position, Color4 color)
 {
     public static readonly unsafe int SizeInBytes = sizeof(VertexPositionColor);
 
@@ -17,12 +17,6 @@ public readonly struct VertexPositionColor
         new("COLOR", 0, Format.R32G32B32A32_Float, 12, 0)
     };
 
-    public VertexPositionColor(Vector3 position, Color4 color)
-    {
-        Position = position;
-        Color = color;
-    }
-
-    public readonly Vector3 Position;
-    public readonly Color4 Color;
+    public readonly Vector3 Position = position;
+    public readonly Color4 Color = color;
 }

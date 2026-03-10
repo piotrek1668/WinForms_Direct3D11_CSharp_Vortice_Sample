@@ -7,7 +7,7 @@ using Vortice.DXGI;
 
 namespace WinFormsDirect3D11Sample;
 
-public readonly struct VertexPositionNormalTexture
+public readonly struct VertexPositionNormalTexture(Vector3 position, Vector3 normal, Vector2 textureCoordinate)
 {
     public static readonly unsafe int SizeInBytes = sizeof(VertexPositionNormalTexture);
 
@@ -17,14 +17,7 @@ public readonly struct VertexPositionNormalTexture
         new("TEXCOORD", 0, Format.R32G32_Float, 24, 0)
     };
 
-    public VertexPositionNormalTexture(Vector3 position, Vector3 normal, Vector2 textureCoordinate)
-    {
-        Position = position;
-        Normal = normal;
-        TextureCoordinate = textureCoordinate;
-    }
-
-    public readonly Vector3 Position;
-    public readonly Vector3 Normal;
-    public readonly Vector2 TextureCoordinate;
+    public readonly Vector3 Position = position;
+    public readonly Vector3 Normal = normal;
+    public readonly Vector2 TextureCoordinate = textureCoordinate;
 }
